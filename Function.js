@@ -1801,16 +1801,44 @@ function getFormattedNotesAsHtml(sheet, row, col) {
 }
 
 /**
+ * Convert checkbox characters to HTML checkbox inputs
+ * ☑ becomes checked checkbox, ☐ becomes unchecked checkbox
+ */
+function convertCheckboxesToHtml(text) {
+  if (!text) return '';
+
+  var result = text;
+
+  // Convert checked checkbox character to HTML
+  // ☑ text -> <div class="checkbox-item"><input type="checkbox" checked><label>text</label></div>
+  result = result.replace(/☑\s*([^\n<]+)/g, function(match, labelText) {
+    return '<div class="checkbox-item"><input type="checkbox" checked><label>' + labelText.trim() + '</label></div>';
+  });
+
+  // Convert unchecked checkbox character to HTML
+  // ☐ text -> <div class="checkbox-item"><input type="checkbox"><label>text</label></div>
+  result = result.replace(/☐\s*([^\n<]+)/g, function(match, labelText) {
+    return '<div class="checkbox-item"><input type="checkbox"><label>' + labelText.trim() + '</label></div>';
+  });
+
+  return result;
+}
+
+/**
  * Convert bullet characters to HTML list format
  * Handles multiple bullet levels: • (level 1), ○ (level 2), ■ (level 3)
+ * Also handles checkboxes: ☑ (checked), ☐ (unchecked)
  */
 function convertBulletsToHtml(text) {
   if (!text) return '';
-  
+
+  // First, convert checkbox characters to HTML checkboxes
+  text = convertCheckboxesToHtml(text);
+
   var lines = text.split('<br>');
   var result = [];
   var currentLevel = 0; // Track current nesting depth
-  
+
   // Bullet symbols for each level
   var bulletSymbols = {
     '•': 1,  // Level 1: filled circle
@@ -1818,7 +1846,7 @@ function convertBulletsToHtml(text) {
     '■': 3,  // Level 3: square
     '▪': 3   // Alternative square
   };
-  
+
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i];
     var trimmedLine = line.trim();
@@ -2639,15 +2667,36 @@ function convertHtmlToPlainText(html) {
     if (text[i] === '<') {
       var tagEnd = text.indexOf('>', i);
       if (tagEnd !== -1) {
-        var tagContent = text.substring(i + 1, tagEnd).toLowerCase();
-        
+        var tagContent = text.substring(i + 1, tagEnd);
+        var tagContentLower = tagContent.toLowerCase();
+
+        // Handle checkbox inputs
+        if (tagContentLower.indexOf('input') !== -1 && tagContentLower.indexOf('checkbox') !== -1) {
+          // Check if the checkbox is checked
+          if (tagContentLower.indexOf('checked') !== -1) {
+            result += '☑ ';  // Checked checkbox
+          } else {
+            result += '☐ ';  // Unchecked checkbox
+          }
+          i = tagEnd + 1;
+          continue;
+        }
+
         // Handle block-level tags that should add newlines
-        if (tagContent === '/p' || tagContent === '/div') {
+        if (tagContentLower === '/p' || tagContentLower === '/div') {
           if (result.length > 0 && result[result.length - 1] !== '\n') {
             result += '\n';
           }
         }
-        
+
+        // Handle label tags - often wrap checkbox text
+        if (tagContentLower === '/label') {
+          // Add newline after label (checkbox item complete)
+          if (result.length > 0 && result[result.length - 1] !== '\n' && result[result.length - 1] !== ' ') {
+            result += '\n';
+          }
+        }
+
         // Skip past the tag
         i = tagEnd + 1;
         continue;
