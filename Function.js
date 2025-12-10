@@ -1855,6 +1855,10 @@ function convertBulletsToHtml(text) {
   text = text.replace(/<(b|i|u|s)>([•○■▪])\s*/g, '$2 ');
   text = text.replace(/([•○■▪])\s*<\/(b|i|u|s)>/g, '$1 ');
 
+  // Add line breaks before bullet symbols that appear mid-text (not at start of line)
+  // This fixes cases where line breaks were lost during save/load
+  text = text.replace(/([^>\n])([•○■▪])/g, '$1<br>$2');
+
   var lines = text.split('<br>');
   var result = [];
   var currentLevel = 0; // Track current nesting depth
