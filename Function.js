@@ -1809,13 +1809,21 @@ function convertCheckboxesToHtml(text) {
 
   var result = text;
 
-  // Convert checked checkbox character to HTML
+  // First, handle checkboxes that might be wrapped in formatting tags like <b>☑ text</b>
+  // Strip the formatting tags from checkbox lines and convert to checkbox HTML
+  result = result.replace(/<(b|i|u|s)>([☑☐])\s*([^<]+)<\/\1>/g, function(match, tag, checkSymbol, labelText) {
+    var isChecked = checkSymbol === '☑';
+    var checkedAttr = isChecked ? ' checked' : '';
+    return '<div class="checkbox-item"><input type="checkbox"' + checkedAttr + '><label>' + labelText.trim() + '</label></div>';
+  });
+
+  // Convert checked checkbox character to HTML (for unformatted checkboxes)
   // ☑ text -> <div class="checkbox-item"><input type="checkbox" checked><label>text</label></div>
   result = result.replace(/☑\s*([^\n<]+)/g, function(match, labelText) {
     return '<div class="checkbox-item"><input type="checkbox" checked><label>' + labelText.trim() + '</label></div>';
   });
 
-  // Convert unchecked checkbox character to HTML
+  // Convert unchecked checkbox character to HTML (for unformatted checkboxes)
   // ☐ text -> <div class="checkbox-item"><input type="checkbox"><label>text</label></div>
   result = result.replace(/☐\s*([^\n<]+)/g, function(match, labelText) {
     return '<div class="checkbox-item"><input type="checkbox"><label>' + labelText.trim() + '</label></div>';

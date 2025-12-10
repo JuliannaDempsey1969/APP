@@ -2550,6 +2550,24 @@
                 return content;
             }
 
+            // Sync checkbox DOM state to HTML attributes before getting innerHTML
+            function getNotesWithSyncedCheckboxes() {
+                var notesElement = document.getElementById('notes');
+                if (!notesElement) return '';
+
+                // Find all checkboxes and sync their checked property to the attribute
+                var checkboxes = notesElement.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(function(cb) {
+                    if (cb.checked) {
+                        cb.setAttribute('checked', 'checked');
+                    } else {
+                        cb.removeAttribute('checked');
+                    }
+                });
+
+                return notesElement.innerHTML;
+            }
+
             return {
                 row: currentRowNumber,
                 date: document.getElementById('date') ? document.getElementById('date').value : '',
@@ -2563,7 +2581,7 @@
                 taskField: getChecklistContent('taskField'),
                 status: document.getElementById('status') ? document.getElementById('status').value : '',
                 strategy: document.getElementById('strategy') ? document.getElementById('strategy').value : '',
-                notes: document.getElementById('notes') ? document.getElementById('notes').innerHTML : '',
+                notes: getNotesWithSyncedCheckboxes(),
                 minutes: timerSeconds / 60,
                 agenda: getChecklistContent('agenda'),
                 thoughts: getChecklistContent('thoughts'),
