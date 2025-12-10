@@ -1754,6 +1754,7 @@
         var timerInterval = null;
         var timerSeconds = 0;
         var timerRunning = false;
+        var originalSheetMinutes = 0;  // Store existing minutes from sheet to add to on save
         var effectSizeRatings = {};
         var statesOfMindRatings = {consciousness: 0, craftsmanship: 0, efficacy: 0, flexibility: 0, interdependence: 0};
         var isLoadingData = false;
@@ -2025,7 +2026,15 @@
         function updateTimerDisplay() {
             var display = document.getElementById('timerDisplay');
             if (display) {
-                display.textContent = formatTime(timerSeconds);
+                var sessionTime = formatTime(timerSeconds);
+                var totalSeconds = Math.round(originalSheetMinutes * 60) + timerSeconds;
+                var totalTime = formatTime(totalSeconds);
+                // Show session time, with total in smaller text if there are prior minutes
+                if (originalSheetMinutes > 0) {
+                    display.innerHTML = sessionTime + '<br><small style="font-size:12px;color:#666;">Total: ' + totalTime + '</small>';
+                } else {
+                    display.textContent = sessionTime;
+                }
             }
         }
 
@@ -2587,7 +2596,7 @@
                 status: document.getElementById('status') ? document.getElementById('status').value : '',
                 strategy: document.getElementById('strategy') ? document.getElementById('strategy').value : '',
                 notes: getNotesWithSyncedCheckboxes(),
-                minutes: timerSeconds / 60,
+                minutes: originalSheetMinutes + (timerSeconds / 60),  // Add session time to existing
                 agenda: getChecklistContent('agenda'),
                 thoughts: getChecklistContent('thoughts'),
                 consciousness: statesData.consciousness || 0,
@@ -2616,6 +2625,10 @@
                 .withSuccessHandler(function(result) {
                     if (result.success) {
                         addStatusLog('Form saved!', 'saving');
+                        // Update originalSheetMinutes to new total and reset session timer
+                        originalSheetMinutes = originalSheetMinutes + (timerSeconds / 60);
+                        timerSeconds = 0;
+                        updateTimerDisplay();
                     } else {
                         addStatusLog('Save failed: ' + (result.message || ''), 'saving');
                     }
@@ -2668,11 +2681,13 @@
                     if (data.flexibility) setStarRating('flexibility', data.flexibility);
                     if (data.interdependence) setStarRating('interdependence', data.interdependence);
                     
-                    // Set timer
+                    // Store original minutes from sheet (for adding to on save)
+                    // Timer tracks current session time, starting at 0
                     if (data.minutes && data.minutes > 0) {
-                        timerSeconds = Math.round(data.minutes * 60);
-                        updateTimerDisplay();
+                        originalSheetMinutes = parseFloat(data.minutes) || 0;
                     }
+                    // Auto-start the timer for this session
+                    startTimer();
                     
                     addStatusLog('Row loaded', 'loading');
                     updateStatusColor();
