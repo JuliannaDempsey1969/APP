@@ -2582,6 +2582,8 @@
                 status: document.getElementById('status') ? document.getElementById('status').value : '',
                 strategy: document.getElementById('strategy') ? document.getElementById('strategy').value : '',
                 notes: getNotesWithSyncedCheckboxes(),
+                pre: document.getElementById('pre') ? document.getElementById('pre').value : '',
+                post: document.getElementById('post') ? document.getElementById('post').value : '',
                 minutes: timerSeconds / 60,
                 agenda: getChecklistContent('agenda'),
                 thoughts: getChecklistContent('thoughts'),
@@ -2653,7 +2655,9 @@
                     if (data.status && document.getElementById('status')) document.getElementById('status').value = data.status;
                     if (data.strategy && document.getElementById('strategy')) document.getElementById('strategy').value = data.strategy;
                     if (data.notes && document.getElementById('notes')) document.getElementById('notes').innerHTML = data.notes;
-                    
+                    if (data.pre && document.getElementById('pre')) document.getElementById('pre').value = data.pre;
+                    if (data.post && document.getElementById('post')) document.getElementById('post').value = data.post;
+
                     // Set star ratings
                     if (data.consciousness) setStarRating('consciousness', data.consciousness);
                     if (data.craftsmanship) setStarRating('craftsmanship', data.craftsmanship);
