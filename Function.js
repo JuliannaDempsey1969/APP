@@ -381,7 +381,6 @@ function getRowData(rowNumber) {
     // Column mapping:
     // A=Date(0), B=Time(1), C=Location(2), D=Owner(3), E=Name(4), F=HIDDEN(5), G=Title(6),
     // H=Type(7), I=Purpose(8), J=HIDDEN(9), K=Task(10), L=Status(11), M=Strategy(12), N=Notes(13), O=Minutes(14),
-    // P=PRE(15), Q=POST(16),
     // V=Agenda(21), W=Thoughts(22), Y=Consciousness(24), Z=Craftsmanship(25), AA=Efficacy(26), AB=Flexibility(27), AC=Interdependence(28)
     const rowData = {
       row: rowNumber,
@@ -398,8 +397,6 @@ function getRowData(rowNumber) {
       strategy: data[12] || '',         // Column M (index 12)
       notes: notesHtml,                 // Column N (index 13)
       minutes: data[14] || 0,           // Column O (index 14)
-      pre: data[15] || '',              // Column P (index 15)
-      post: data[16] || '',             // Column Q (index 16)
       agenda: data[21] || '',           // Column V (index 21)
       thoughts: data[22] || '',         // Column W (index 22)
       consciousness: data[24] || 0,     // Column Y (index 24)
@@ -505,8 +502,6 @@ function saveRowData(data) {
     }
     
     sheet.getRange(row, 15).setValue(data.minutes || 0);       // Column O
-    sheet.getRange(row, 16).setValue(data.pre || '');          // Column P
-    sheet.getRange(row, 17).setValue(data.post || '');         // Column Q
     sheet.getRange(row, 22).setValue(data.agenda || '');       // Column V
     
     // Handle agenda field formatting (Column V) - with error handling

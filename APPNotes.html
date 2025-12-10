@@ -1094,7 +1094,7 @@
                     </div>
                     <div class="form-group">
                         <label for="purpose">Purpose</label>
-                        <select id="purpose" name="purpose">
+                        <select id="purpose" name="purpose" onchange="handlePurposeChange()">
                             <option value="">Select Purpose</option>
                             <option value="Activate / Engage">Activate / Engage</option>
                             <option value="Allocated Time">Allocated Time</option>
@@ -2226,8 +2226,14 @@
         // Fixed: Handler for task field change
         function handleTaskChange() {
             if (isLoadingData) return;
-            
+
             loadPreviousAppointmentNotes();
+        }
+
+        // Handler for purpose field change - loads PRE score from CoachESData
+        function handlePurposeChange() {
+            if (isLoadingData) return;
+
             loadPreviousPostScore();
         }
 
@@ -2271,13 +2277,12 @@
         // ==========================================
         function loadPreviousPostScore(callback) {
             var name = document.getElementById('name').value;
-            var taskType = document.getElementById('task').value;
-            var matchField = taskType;
-            if (!matchField || !isAppsScript) {
+            var purpose = document.getElementById('purpose').value;
+            if (!purpose || !isAppsScript) {
                 if (callback) callback();
                 return;
             }
-            addStatusLog('Loading POST...', 'loading');
+            addStatusLog('Loading PRE from CoachESData...', 'loading');
             google.script.run
                 .withSuccessHandler(function(result) {
                     if (result.success && result.score !== null) {
@@ -2287,10 +2292,10 @@
                     if (callback) callback();
                 })
                 .withFailureHandler(function(error) {
-                    addStatusLog('POST error: ' + error, 'loading');
+                    addStatusLog('PRE lookup error: ' + error, 'loading');
                     if (callback) callback();
                 })
-                .getPreviousPostScore(name, matchField);
+                .getPreviousPostScore(name, purpose);
         }
 
         // ==========================================
@@ -2582,8 +2587,6 @@
                 status: document.getElementById('status') ? document.getElementById('status').value : '',
                 strategy: document.getElementById('strategy') ? document.getElementById('strategy').value : '',
                 notes: getNotesWithSyncedCheckboxes(),
-                pre: document.getElementById('pre') ? document.getElementById('pre').value : '',
-                post: document.getElementById('post') ? document.getElementById('post').value : '',
                 minutes: timerSeconds / 60,
                 agenda: getChecklistContent('agenda'),
                 thoughts: getChecklistContent('thoughts'),
@@ -2655,8 +2658,6 @@
                     if (data.status && document.getElementById('status')) document.getElementById('status').value = data.status;
                     if (data.strategy && document.getElementById('strategy')) document.getElementById('strategy').value = data.strategy;
                     if (data.notes && document.getElementById('notes')) document.getElementById('notes').innerHTML = data.notes;
-                    if (data.pre && document.getElementById('pre')) document.getElementById('pre').value = data.pre;
-                    if (data.post && document.getElementById('post')) document.getElementById('post').value = data.post;
 
                     // Set star ratings
                     if (data.consciousness) setStarRating('consciousness', data.consciousness);
