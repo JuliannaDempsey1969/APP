@@ -1850,6 +1850,11 @@ function convertBulletsToHtml(text) {
   // First, convert checkbox characters to HTML checkboxes
   text = convertCheckboxesToHtml(text);
 
+  // Strip formatting tags from bullet lines before processing
+  // Handle patterns like <b>• text</b> or <b>•</b> text
+  text = text.replace(/<(b|i|u|s)>([•○■▪])\s*/g, '$2 ');
+  text = text.replace(/([•○■▪])\s*<\/(b|i|u|s)>/g, '$1 ');
+
   var lines = text.split('<br>');
   var result = [];
   var currentLevel = 0; // Track current nesting depth
@@ -1865,23 +1870,29 @@ function convertBulletsToHtml(text) {
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i];
     var trimmedLine = line.trim();
-    
+
+    // Strip leading formatting tags to check for bullet
+    var strippedLine = trimmedLine.replace(/^(<(b|i|u|s)>)+/, '');
+
     // Check if line starts with any bullet symbol
     var bulletLevel = 0;
     var bulletChar = '';
-    
+
     for (var symbol in bulletSymbols) {
-      if (trimmedLine.indexOf(symbol) === 0) {
+      if (strippedLine.indexOf(symbol) === 0) {
         bulletLevel = bulletSymbols[symbol];
         bulletChar = symbol;
         break;
       }
     }
-    
+
     if (bulletLevel > 0) {
-      // This is a bullet item
-      var itemText = trimmedLine.replace(new RegExp('^[' + bulletChar + ']\\s*'), '');
-      
+      // This is a bullet item - extract the text after the bullet
+      // Remove bullet and any surrounding formatting tags
+      var itemText = strippedLine.replace(new RegExp('^[' + bulletChar + ']\\s*'), '');
+      // Clean up any trailing closing tags from the bullet stripping
+      itemText = itemText.replace(/^(<\/(b|i|u|s)>)+/, '').trim();
+
       // Adjust list nesting
       while (currentLevel < bulletLevel) {
         result.push('<ul>');
@@ -1891,7 +1902,7 @@ function convertBulletsToHtml(text) {
         result.push('</ul>');
         currentLevel--;
       }
-      
+
       result.push('<li>' + itemText + '</li>');
     } else {
       // Not a bullet item - close all open lists first
