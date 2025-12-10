@@ -377,7 +377,14 @@ function getRowData(rowNumber) {
     
     // Get formatted notes from the cell
     const notesHtml = getFormattedNotesAsHtml(sheet, rowNumber, 14);
-    
+
+    // Convert agenda and taskField to HTML (they contain checkbox symbols)
+    const agendaText = sheet.getRange(rowNumber, 22).getValue() || '';
+    const agendaHtml = convertBulletsToHtml(agendaText.toString());
+
+    const taskFieldText = sheet.getRange(rowNumber, 11).getValue() || '';
+    const taskFieldHtml = convertBulletsToHtml(taskFieldText.toString());
+
     // Column mapping:
     // A=Date(0), B=Time(1), C=Location(2), D=Owner(3), E=Name(4), F=HIDDEN(5), G=Title(6),
     // H=Type(7), I=Purpose(8), J=HIDDEN(9), K=Task(10), L=Status(11), M=Strategy(12), N=Notes(13), O=Minutes(14),
@@ -392,12 +399,12 @@ function getRowData(rowNumber) {
       eventTitle: data[6] || '',        // Column G (index 6)
       task: data[7] || '',              // Column H (index 7)
       purpose: data[8] || '',           // Column I (index 8)
-      taskField: data[10] || '',        // Column K (index 10)
+      taskField: taskFieldHtml,          // Column K (index 10) - converted to HTML
       status: data[11] || '',           // Column L (index 11)
       strategy: data[12] || '',         // Column M (index 12)
       notes: notesHtml,                 // Column N (index 13)
       minutes: data[14] || 0,           // Column O (index 14)
-      agenda: data[21] || '',           // Column V (index 21)
+      agenda: agendaHtml,               // Column V (index 21) - converted to HTML
       thoughts: data[22] || '',         // Column W (index 22)
       consciousness: data[24] || 0,     // Column Y (index 24)
       craftsmanship: data[25] || 0,     // Column Z (index 25)

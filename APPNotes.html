@@ -2658,6 +2658,8 @@
                     if (data.status && document.getElementById('status')) document.getElementById('status').value = data.status;
                     if (data.strategy && document.getElementById('strategy')) document.getElementById('strategy').value = data.strategy;
                     if (data.notes && document.getElementById('notes')) document.getElementById('notes').innerHTML = data.notes;
+                    if (data.agenda && document.getElementById('agenda')) document.getElementById('agenda').innerHTML = data.agenda;
+                    if (data.taskField && document.getElementById('taskField')) document.getElementById('taskField').innerHTML = data.taskField;
 
                     // Set star ratings
                     if (data.consciousness) setStarRating('consciousness', data.consciousness);
