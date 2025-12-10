@@ -1850,17 +1850,13 @@ function convertBulletsToHtml(text) {
   // First, convert checkbox characters to HTML checkboxes
   text = convertCheckboxesToHtml(text);
 
-  // Strip ALL formatting tags (bold, italic, underline, strikethrough) from the text
-  // This prevents random bolding from Google Sheets RichTextValue
-  text = text.replace(/<\/?[bius]>/g, '');
+  // Normalize line endings - spreadsheet text uses \n, not <br>
+  // Convert all line breaks to a common format
+  text = text.replace(/\r\n/g, '\n');
+  text = text.replace(/\r/g, '\n');
 
-  // Add line breaks before bullet symbols that appear mid-text (not at start or after <br>)
-  text = text.replace(/([^>\n\r])([•○■▪])/g, '$1<br>$2');
-
-  // Add line breaks after bullet content when followed by a capital letter (new sentence/question)
-  text = text.replace(/([•○■▪][^•○■▪\n<]{1,50})([A-Z][a-z])/g, '$1<br>$2');
-
-  var lines = text.split('<br>');
+  // Split on newlines (from spreadsheet) or <br> tags (from HTML)
+  var lines = text.split(/\n|<br\s*\/?>/i);
   var result = [];
   var currentLevel = 0; // Track current nesting depth
 
