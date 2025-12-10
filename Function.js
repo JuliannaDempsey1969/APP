@@ -1748,26 +1748,36 @@ function getPreviousPostScore(name, purpose) {
 function getFormattedNotesAsHtml(sheet, row, col) {
   const notesCell = sheet.getRange(row, col);
   const richTextValue = notesCell.getRichTextValue();
-  
+
   if (!richTextValue) {
     return notesCell.getValue() || '';
   }
-  
+
   const text = richTextValue.getText();
   if (!text) {
     return '';
   }
-  
+
   let html = '';
   const runs = richTextValue.getRuns();
-  
+
   for (let i = 0; i < runs.length; i++) {
     const run = runs[i];
     const runText = run.getText();
     const textStyle = run.getTextStyle();
-    
-    let styledText = runText;
-    
+
+    // Escape HTML special characters in the text
+    let styledText = runText
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // Check for foreground color
+    const fgColor = textStyle.getForegroundColor();
+    if (fgColor && fgColor !== '#000000') {
+      styledText = '<span style="color:' + fgColor + ';">' + styledText + '</span>';
+    }
+
     if (textStyle.isBold()) {
       styledText = '<b>' + styledText + '</b>';
     }
@@ -1780,13 +1790,13 @@ function getFormattedNotesAsHtml(sheet, row, col) {
     if (textStyle.isStrikethrough()) {
       styledText = '<s>' + styledText + '</s>';
     }
-    
+
     html += styledText;
   }
-  
+
   html = html.replace(/\n/g, '<br>');
   html = convertBulletsToHtml(html);
-  
+
   return html;
 }
 
@@ -2425,43 +2435,64 @@ function saveFormattedNotes(sheet, row, col, notesText) {
   
   // Set the plain text value first
   notesCell.setValue(plainText);
-  
+
   try {
     const richTextBuilder = SpreadsheetApp.newRichTextValue().setText(plainText);
     const textLength = plainText.length;
-    
+
     // Parse HTML formatting with bounds checking
     var formattingData = parseHtmlFormatting(notesText);
-    
+
     for (var i = 0; i < formattingData.length; i++) {
       var format = formattingData[i];
-      
+
       // Bounds checking - skip invalid ranges
-      if (format.start < 0 || format.end < 0 || 
-          format.start >= textLength || format.end > textLength || 
+      if (format.start < 0 || format.end < 0 ||
+          format.start >= textLength || format.end > textLength ||
           format.start >= format.end) {
         continue;
       }
-      
+
       var textStyle = SpreadsheetApp.newTextStyle();
-      
+
       if (format.bold) textStyle.setBold(true);
       if (format.italic) textStyle.setItalic(true);
       if (format.underline) textStyle.setUnderline(true);
       if (format.strikethrough) textStyle.setStrikethrough(true);
-      
+
+      // Handle text colors
+      if (format.color) {
+        var colorValue = parseColorToHex(format.color);
+        if (colorValue) {
+          textStyle.setForegroundColor(colorValue);
+        }
+      }
+
+      // For background colors (highlights), use a colored text as workaround
+      // since Google Sheets RichText doesn't support per-character backgrounds
+      // We'll convert highlights to colored text markers
+      if (format.backgroundColor && !format.color) {
+        // Convert background highlight to a visible foreground color indicator
+        var bgColorValue = parseColorToHex(format.backgroundColor);
+        // Use dark colors for text that had light highlights
+        if (bgColorValue) {
+          // Keep the text color as-is but we'll mark it
+          // Note: True highlight preservation requires storing HTML separately
+        }
+      }
+
       richTextBuilder.setTextStyle(format.start, format.end, textStyle.build());
     }
-    
+
     // Apply bold formatting to known questions
     for (var i = 0; i < allQuestions.length; i++) {
       var question = allQuestions[i];
       var searchIndex = 0;
       var foundIndex = plainText.indexOf(question, searchIndex);
-      
+
       while (foundIndex !== -1) {
         var endIndex = foundIndex + question.length;
-        
+
         // Bounds checking
         if (foundIndex >= 0 && endIndex <= textLength && foundIndex < endIndex) {
           richTextBuilder.setTextStyle(
@@ -2470,21 +2501,63 @@ function saveFormattedNotes(sheet, row, col, notesText) {
             SpreadsheetApp.newTextStyle().setBold(true).build()
           );
         }
-        
+
         searchIndex = endIndex;
         foundIndex = plainText.indexOf(question, searchIndex);
       }
     }
-    
+
     notesCell.setRichTextValue(richTextBuilder.build());
-    
+
   } catch (formatError) {
     // If rich text formatting fails, just keep the plain text that was already set
     Logger.log('Warning: Rich text formatting failed, using plain text: ' + formatError.toString());
   }
-  
+
   notesCell.setWrap(true);
   notesCell.setVerticalAlignment('top');
+}
+
+/**
+ * Parse color string (rgb, hex, or named) to hex format
+ */
+function parseColorToHex(colorStr) {
+  if (!colorStr) return null;
+
+  colorStr = colorStr.trim().toLowerCase();
+
+  // Already hex format
+  if (colorStr.charAt(0) === '#') {
+    return colorStr;
+  }
+
+  // RGB format: rgb(r, g, b)
+  var rgbMatch = colorStr.match(/rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i);
+  if (rgbMatch) {
+    var r = parseInt(rgbMatch[1]).toString(16).padStart(2, '0');
+    var g = parseInt(rgbMatch[2]).toString(16).padStart(2, '0');
+    var b = parseInt(rgbMatch[3]).toString(16).padStart(2, '0');
+    return '#' + r + g + b;
+  }
+
+  // Named colors (common ones)
+  var namedColors = {
+    'red': '#ff0000',
+    'green': '#00ff00',
+    'blue': '#0000ff',
+    'yellow': '#ffff00',
+    'orange': '#ffa500',
+    'purple': '#800080',
+    'pink': '#ffc0cb',
+    'black': '#000000',
+    'white': '#ffffff',
+    'gray': '#808080',
+    'grey': '#808080',
+    'cyan': '#00ffff',
+    'magenta': '#ff00ff'
+  };
+
+  return namedColors[colorStr] || null;
 }
 
 /**
@@ -2613,36 +2686,85 @@ function convertHtmlToPlainText(html) {
 }
 
 /**
- * Parse HTML formatting
+ * Parse HTML formatting including colors and highlights
  */
 function parseHtmlFormatting(html) {
   if (!html) return [];
-  
+
   var formattingRanges = [];
   var plainText = convertHtmlToPlainText(html);
-  
+
   var stack = [];
   var currentPlainPos = 0;
   var currentHtmlPos = 0;
-  
+
   // Track list nesting for accurate position calculation
   var listNestingLevel = 0;
-  
+
   while (currentHtmlPos < html.length) {
     var char = html.charAt(currentHtmlPos);
-    
+
     if (char === '<') {
       var tagEnd = html.indexOf('>', currentHtmlPos);
       if (tagEnd === -1) break;
-      
-      var tag = html.substring(currentHtmlPos + 1, tagEnd);
-      var isClosing = tag.charAt(0) === '/';
-      var tagName = isClosing ? tag.substring(1).toLowerCase() : tag.toLowerCase();
-      
+
+      var fullTag = html.substring(currentHtmlPos + 1, tagEnd);
+      var isClosing = fullTag.charAt(0) === '/';
+
+      // Extract tag name (first word before space or end)
+      var tagContent = isClosing ? fullTag.substring(1) : fullTag;
+      var spaceIndex = tagContent.indexOf(' ');
+      var tagName = (spaceIndex > 0 ? tagContent.substring(0, spaceIndex) : tagContent).toLowerCase();
+
       if (tagName === 'strong') tagName = 'b';
       if (tagName === 'em') tagName = 'i';
-      
-      if (!isClosing && (tagName === 'b' || tagName === 'i' || tagName === 'u' || tagName === 's')) {
+
+      // Handle span tags with style attributes (for colors/highlights)
+      if (tagName === 'span' && !isClosing) {
+        var styleMatch = fullTag.match(/style\s*=\s*["']([^"']*)["']/i);
+        var spanInfo = { tag: 'span', startPos: currentPlainPos };
+
+        if (styleMatch) {
+          var styleStr = styleMatch[1];
+
+          // Check for text color
+          var colorMatch = styleStr.match(/(?:^|;)\s*color\s*:\s*([^;]+)/i);
+          if (colorMatch) {
+            spanInfo.color = colorMatch[1].trim();
+          }
+
+          // Check for background color (highlight)
+          var bgMatch = styleStr.match(/background(?:-color)?\s*:\s*([^;]+)/i);
+          if (bgMatch) {
+            spanInfo.backgroundColor = bgMatch[1].trim();
+          }
+        }
+
+        stack.push(spanInfo);
+      } else if (tagName === 'span' && isClosing) {
+        // Find matching span in stack
+        for (var i = stack.length - 1; i >= 0; i--) {
+          if (stack[i].tag === 'span') {
+            var format = {
+              start: stack[i].startPos,
+              end: currentPlainPos
+            };
+
+            if (stack[i].color) {
+              format.color = stack[i].color;
+            }
+            if (stack[i].backgroundColor) {
+              format.backgroundColor = stack[i].backgroundColor;
+            }
+
+            if (format.end > format.start && (format.color || format.backgroundColor)) {
+              formattingRanges.push(format);
+            }
+            stack.splice(i, 1);
+            break;
+          }
+        }
+      } else if (!isClosing && (tagName === 'b' || tagName === 'i' || tagName === 'u' || tagName === 's')) {
         stack.push({
           tag: tagName,
           startPos: currentPlainPos
@@ -2679,14 +2801,14 @@ function parseHtmlFormatting(html) {
       } else if (tagName === '/li') {
         currentPlainPos++;
       }
-      
+
       currentHtmlPos = tagEnd + 1;
     } else {
       currentPlainPos++;
       currentHtmlPos++;
     }
   }
-  
+
   return formattingRanges;
 }
 

@@ -1306,13 +1306,18 @@
                 </div>
                 
                 <div class="formatting-toolbar">
-                    <button type="button" class="format-btn" onclick="formatText('bold')">Bold</button>
-                    <button type="button" class="format-btn" onclick="formatText('italic')">Italic</button>
-                    <button type="button" class="format-btn" onclick="formatText('underline')">Underline</button>
-                    <button type="button" class="format-btn" onclick="formatText('insertUnorderedList')">Bullets</button>
-                    <button type="button" class="format-btn" onclick="formatText('insertOrderedList')">Numbers</button>
-                    <button type="button" class="format-btn" onclick="formatText('indent')">→ Indent</button>
-                    <button type="button" class="format-btn" onclick="formatText('outdent')">← Outdent</button>
+                    <button type="button" class="format-btn" onclick="formatText('bold')" title="Bold (Ctrl+B)"><b>B</b></button>
+                    <button type="button" class="format-btn" onclick="formatText('italic')" title="Italic (Ctrl+I)"><i>I</i></button>
+                    <button type="button" class="format-btn" onclick="formatText('underline')" title="Underline (Ctrl+U)"><u>U</u></button>
+                    <button type="button" class="format-btn" onclick="formatText('strikeThrough')" title="Strikethrough"><s>S</s></button>
+                    <button type="button" class="format-btn" onclick="formatText('insertUnorderedList')" title="Bullet List">• List</button>
+                    <button type="button" class="format-btn" onclick="formatText('insertOrderedList')" title="Numbered List">1. List</button>
+                    <button type="button" class="format-btn" onclick="formatText('indent')" title="Increase Indent">→</button>
+                    <button type="button" class="format-btn" onclick="formatText('outdent')" title="Decrease Indent">←</button>
+                    <button type="button" class="format-btn" onclick="applyHighlight('#FFFF00')" title="Highlight Yellow" style="background:#FFFF00;">H</button>
+                    <button type="button" class="format-btn" onclick="applyHighlight('#00FF00')" title="Highlight Green" style="background:#00FF00;">H</button>
+                    <button type="button" class="format-btn" onclick="applyHighlight('#00BFFF')" title="Highlight Blue" style="background:#00BFFF;">H</button>
+                    <button type="button" class="format-btn" onclick="removeFormatting()" title="Remove Formatting">✕</button>
                 </div>
                 <div id="notes" class="rich-text-editor" contenteditable="true" style="flex: 1; min-height: 400px;"></div>
             </div>
@@ -2121,8 +2126,74 @@
         // ==========================================
         // FORMATTING TOOLBAR
         // ==========================================
+        var lastFocusedEditor = null;
+
+        // Track which editor was last focused
+        document.addEventListener('DOMContentLoaded', function() {
+            var notesEditor = document.getElementById('notes');
+            if (notesEditor) {
+                notesEditor.addEventListener('focus', function() {
+                    lastFocusedEditor = this;
+                });
+
+                // Handle paste to preserve formatting
+                notesEditor.addEventListener('paste', function(e) {
+                    // Allow the default paste behavior which preserves HTML formatting
+                    // The contenteditable div will handle the paste naturally
+                });
+            }
+        });
+
         function formatText(command) {
+            var editor = document.getElementById('notes');
+
+            // Ensure the editor has focus before applying formatting
+            if (document.activeElement !== editor) {
+                editor.focus();
+
+                // Restore selection if we have one saved
+                var selection = window.getSelection();
+                if (selection.rangeCount === 0) {
+                    // If no selection, place cursor at end
+                    var range = document.createRange();
+                    range.selectNodeContents(editor);
+                    range.collapse(false);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            }
+
+            // Execute the formatting command
             document.execCommand(command, false, null);
+
+            // Keep focus on editor
+            editor.focus();
+        }
+
+        function applyHighlight(color) {
+            var editor = document.getElementById('notes');
+
+            // Ensure the editor has focus
+            if (document.activeElement !== editor) {
+                editor.focus();
+            }
+
+            // Use hiliteColor for highlighting (backColor works similarly)
+            document.execCommand('hiliteColor', false, color);
+            editor.focus();
+        }
+
+        function removeFormatting() {
+            var editor = document.getElementById('notes');
+
+            // Ensure the editor has focus
+            if (document.activeElement !== editor) {
+                editor.focus();
+            }
+
+            // Remove all formatting from selected text
+            document.execCommand('removeFormat', false, null);
+            editor.focus();
         }
 
         // ==========================================
