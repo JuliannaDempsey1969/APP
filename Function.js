@@ -385,6 +385,10 @@ function getRowData(rowNumber) {
     const taskFieldText = sheet.getRange(rowNumber, 11).getValue() || '';
     const taskFieldHtml = convertBulletsToHtml(taskFieldText.toString());
 
+    // Convert thoughts/reminders to HTML (column W contains checkbox symbols)
+    const thoughtsText = sheet.getRange(rowNumber, 23).getValue() || '';
+    const thoughtsHtml = convertBulletsToHtml(thoughtsText.toString());
+
     // Column mapping:
     // A=Date(0), B=Time(1), C=Location(2), D=Owner(3), E=Name(4), F=HIDDEN(5), G=Title(6),
     // H=Type(7), I=Purpose(8), J=HIDDEN(9), K=Task(10), L=Status(11), M=Strategy(12), N=Notes(13), O=Minutes(14),
@@ -405,7 +409,7 @@ function getRowData(rowNumber) {
       notes: notesHtml,                 // Column N (index 13)
       minutes: data[14] || 0,           // Column O (index 14)
       agenda: agendaHtml,               // Column V (index 21) - converted to HTML
-      thoughts: data[22] || '',         // Column W (index 22)
+      thoughts: thoughtsHtml,            // Column W (index 22) - converted to HTML
       consciousness: data[24] || 0,     // Column Y (index 24)
       craftsmanship: data[25] || 0,     // Column Z (index 25)
       efficacy: data[26] || 0,          // Column AA (index 26)
