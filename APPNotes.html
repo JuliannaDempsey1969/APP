@@ -1,0 +1,2668 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=McLaren&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================
+           GLOBAL STYLES
+           ========================================== */
+        * {
+            box-sizing: border-box;
+            font-family: 'McLaren', cursive;
+        }
+        
+        body {
+            font-family: 'McLaren', cursive;
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            padding-top: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 8px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 2px;
+            font-size: 12px;
+            font-family: 'McLaren', cursive;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 6px;
+            border: 2px solid #000;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: 'McLaren', cursive;
+        }
+        
+        button {
+            font-family: 'McLaren', cursive;
+            border: 2px solid black;
+        }
+        
+        select, input, textarea {
+            font-family: 'McLaren', cursive;
+        }
+        
+        /* ==========================================
+           TIMER SECTION - STICKY HEADER
+           ========================================== */
+        .timer-section {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #ffffff;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #000;
+        }
+        
+        .timer-container {
+            display: grid;
+            grid-template-columns: 1fr 150px 0.6fr auto auto auto;
+            gap: 10px;
+            align-items: start;
+            margin: 0 auto;
+        }
+        
+        .status-log-section {
+            background: #222;
+            border-radius: 8px;
+            padding: 8px;
+            min-width: 280px;
+            border: 2px solid #000;
+        }
+        
+        .status-log-label {
+            color: #fff;
+            font-weight: bold;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+        
+        .status-log-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 4px;
+            max-height: 140px;
+            overflow-y: auto;
+        }
+        
+        .status-column {
+            background: #1a1a1a;
+            border-radius: 4px;
+            padding: 4px;
+            font-size: 10px;
+            border: 1px solid #000;
+        }
+        
+        .status-column-header {
+            color: #888;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #444;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+        }
+        
+        .status-log-entry {
+            color: #0f0;
+            padding: 2px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .log-time {
+            color: #888;
+        }
+        
+        .timer-center {
+            text-align: center;
+            max-width: 150px;
+        }
+        
+        .timer-display {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0f0;
+            font-family: monospace;
+            background: #000;
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            border: 2px solid #000;
+        }
+        
+        .timer-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px;
+            max-width: 150px;
+            margin: 0 auto;
+        }
+        
+        .timer-btn {
+            padding: 6px 6px;
+            border: 2px solid black;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 11px;
+            width: 100%;
+            height: 32px;
+        }
+        
+        .timer-btn.start { background: #4CAF50; color: white; }
+        .timer-btn.stop { background: #f44336; color: white; }
+        .timer-btn.reset { background: #ff9800; color: white; }
+        .timer-btn.now { background: #2196F3; color: white; }
+        .timer-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .future-appointments-section {
+            background: #222;
+            border-radius: 8px;
+            padding: 8px;
+            min-width: 180px;
+            border: 2px solid #000;
+        }
+        
+        .future-appointments-label {
+            color: #fff;
+            font-weight: bold;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+        
+        .future-appointments-container {
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .no-future-appointments {
+            color: #888;
+            font-size: 11px;
+            font-style: italic;
+        }
+        
+        .future-appointment-item {
+            background: #1a1a1a;
+            padding: 4px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            font-size: 10px;
+            color: #fff;
+            border: 1px solid #000;
+        }
+        
+        /* OBS Buttons */
+        .obs-buttons-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .obs-btn {
+            padding: 8px 12px;
+            border: 2px solid black;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .obs-btn.teacher { background: #FD349C; color: white; }
+        .obs-btn.student { background: #9400D3; color: white; }
+        .obs-btn.kickup { background: orange; color: white; }
+        
+        /* Top Right Buttons */
+        .top-right-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 120px;
+        }
+        
+        .save-btn, .load-questions-btn {
+            padding: 8px 12px;
+            border: 2px solid black;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        /* ==========================================
+           COLLAPSIBLE CONTAINERS - GENERIC
+           ========================================== */
+        .collapsible-container {
+            margin: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border: 2px solid #000;
+        }
+        
+        .collapsible-header {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            gap: 15px;
+        }
+        
+        .collapsible-header:hover {
+            filter: brightness(1.1);
+        }
+        
+        .collapsible-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        
+        .collapsible-toggle {
+            font-size: 14px;
+            transition: transform 0.3s;
+        }
+        
+        .collapsible-content {
+            padding: 15px;
+            background: #fff;
+            border: 2px solid #000;
+            border-top: none;
+        }
+        
+        .collapsible-content.collapsed {
+            display: none;
+        }
+        
+        /* ==========================================
+           MAIN PURPLE FORM CONTAINER
+           ========================================== */
+        .container {
+            margin: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border: 2px solid #000;
+        }
+        
+        /* Rich Text Editors */
+        .rich-text-editor {
+            background: #fff;
+            border: 2px solid #000;
+            border-radius: 4px;
+            padding: 10px;
+            min-height: 100px;
+            overflow-y: auto;
+            font-family: 'McLaren', cursive;
+        }
+        
+        .rich-text-editor.previous-notes {
+            background: #f5f5f5;
+            min-height: 350px;
+        }
+        
+        .formatting-toolbar {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .format-btn {
+            padding: 4px 8px;
+            border: 2px solid black;
+            background: #f5f5f5;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .format-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        /* Checklist Styles */
+        .tasks-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .checkbox-item label {
+            flex: 1;
+            min-width: 100px;
+            padding: 2px 4px;
+            border: 1px solid transparent;
+            border-radius: 2px;
+        }
+        
+        .checkbox-item label:focus {
+            border-color: #2196F3;
+            outline: none;
+        }
+        
+        /* States of Mind Container */
+        .states-of-mind-container {
+            background: #f9f9f9;
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .state-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px solid #000;
+        }
+        
+        .state-item:last-child {
+            border-bottom: none;
+        }
+        
+        .state-name {
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .star-rating {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .star-rating .star {
+            font-size: 18px;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .star-rating .star:hover,
+        .star-rating .star.active {
+            color: #4CAF50;
+        }
+        
+        /* ==========================================
+           QUESTION BANK STYLES
+           ========================================== */
+        .question-categories-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        /* Question Bank Sticky Header */
+        .question-bank-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        /* Fixed: Use collapsible-content class for consistency */
+        .question-bank-content {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 15px;
+            background: #0000FF;
+            border: 2px solid #000;
+            border-top: none;
+        }
+        
+        .question-bank-content.collapsed {
+            display: none;
+        }
+        
+        .question-category {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 2px solid #000;
+        }
+        
+        .category-header {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .category-header:hover {
+            filter: brightness(1.1);
+        }
+        
+        .category-title {
+            font-size: 14px;
+        }
+        
+        .category-toggle {
+            font-size: 12px;
+        }
+        
+        .category-content {
+            display: none;
+            padding: 10px;
+            background: #fff;
+            border: 2px solid #000;
+            border-top: none;
+        }
+        
+        .question-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .question-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: 1px solid #000;
+        }
+        
+        .question-item:hover {
+            background: #e8f5e9;
+        }
+        
+        .question-item.selected {
+            background: #c8e6c9;
+            border-left: 3px solid #4CAF50;
+        }
+        
+        .question-checkbox {
+            margin-top: 2px;
+            width: 16px;
+            height: 16px;
+        }
+        
+        .question-text {
+            flex: 1;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .click-hint {
+            font-size: 10px;
+            color: #999;
+            font-style: italic;
+            white-space: nowrap;
+        }
+        
+        .question-divider {
+            height: 1px;
+            background: #ddd;
+            margin: 8px 0;
+        }
+        
+        /* Question Bank Category Colors */
+        .category-header.setting-direction { background: #f44336; }
+        .category-header.planning { background: #2196F3; }
+        .category-header.reflecting { background: #FFEB3B; color: #000; }
+        .category-header.data { background: #795548; }
+        .category-header.hlp7 { background: #9C27B0; }
+        .category-header.hlp16 { background: #009688; }
+        .category-header.universal-checklist { background: #E91E63; }
+        .category-header.cci { background: #1a237e; }
+        .category-header.student { background: #4CAF50; }
+        .category-header.meeting { background: #FF9800; }
+        .category-header.professional-learning { background: #3F51B5; }
+        .category-header.tasks { background: #5D4037; }
+        .category-header.problem-resolving { background: #00BCD4; }
+        .category-header.debrief { background: #8BC34A; }
+        
+        /* Expand/Collapse Buttons */
+        .expand-collapse-btns {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .expand-collapse-btn {
+            padding: 5px 10px;
+            border: 2px solid black;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .expand-collapse-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .add-selected-btn {
+            padding: 5px 10px;
+            background: #4CAF50;
+            color: white;
+            border: 2px solid black;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        
+        .add-selected-btn:hover {
+            background: #45a049;
+        }
+        
+        /* ==========================================
+           EFFECT SIZE MAIN CONTAINER
+           ========================================== */
+        .effect-size-main-container {
+            margin: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            border: 2px solid #000;
+        }
+        
+        .effect-size-main-header {
+            background: #000;
+            color: #fff;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .effect-size-main-header:hover {
+            background: #222;
+        }
+        
+        .effect-size-main-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        
+        .effect-size-main-toggle {
+            font-size: 16px;
+        }
+        
+        .effect-size-main-content {
+            padding: 15px;
+            background: #1a1a1a;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .effect-size-main-content.collapsed {
+            display: none;
+        }
+        
+        /* Effect Size Subcategories */
+        .effect-size-subcategory {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #000;
+        }
+        
+        .subcategory-header {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .subcategory-header:hover {
+            filter: brightness(1.1);
+        }
+        
+        .subcategory-title {
+            font-size: 14px;
+        }
+        
+        .subcategory-toggle {
+            font-size: 12px;
+        }
+        
+        .subcategory-content {
+            padding: 15px;
+            background: #2a2a2a;
+        }
+        
+        .subcategory-content.collapsed {
+            display: none;
+        }
+        
+        /* Subcategory Colors */
+        .subcategory-header.coach-data-collection { background: #f44336; }
+        .subcategory-header.teacher-data-analysis { background: #FFEB3B; color: #000; }
+        .subcategory-header.meeting-structures { background: #00BCD4; }
+        .subcategory-header.collaboration { background: #E91E63; }
+        .subcategory-header.consulting { background: #00BFFF; }
+        .subcategory-header.coaching { background: #4CAF50; }
+        .subcategory-header.meeting-participation { background: #9C27B0; }
+        .subcategory-header.data-team { background: #795548; }
+        
+        /* Rating Grid */
+        .rating-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .rating-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            background: #333;
+            border-radius: 4px;
+            border: 1px solid #000;
+        }
+        
+        .rating-label {
+            color: #fff;
+            font-size: 12px;
+        }
+        
+        .effect-star-rating {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .effect-star-rating .effect-star {
+            font-size: 20px;
+            color: #555;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .effect-star-rating .effect-star:hover,
+        .effect-star-rating .effect-star.active {
+            color: #4CAF50;
+        }
+        
+        /* ==========================================
+           ACTION PLAN STYLES
+           ========================================== */
+        .action-plan-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            border: 2px solid #000;
+            border-left: 4px solid #ccc;
+        }
+        
+        .action-plan-item.completed {
+            background: #e8f5e9;
+            border-left-color: #4CAF50;
+        }
+        
+        .action-plan-item.in-progress {
+            background: #fff3e0;
+            border-left-color: #FF9800;
+        }
+        
+        .action-plan-item.pending {
+            background: #fce4ec;
+            border-left-color: #f44336;
+        }
+        
+        /* ==========================================
+           LOADING SPINNER
+           ========================================== */
+        .loading-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 5px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- ==========================================
+         TIMER SECTION - STICKY HEADER
+         ========================================== -->
+    <div class="timer-section">
+        <div class="timer-container">
+            <div class="status-log-section">
+                <div class="status-log-label">Status Log</div>
+                <div class="status-log-container" id="statusLogContainer">
+                    <div class="status-column" id="loadingColumn">
+                        <div class="status-column-header">LOADING</div>
+                    </div>
+                    <div class="status-column" id="otherColumn">
+                        <div class="status-column-header">STATUS</div>
+                    </div>
+                    <div class="status-column" id="savingColumn">
+                        <div class="status-column-header">SAVING</div>
+                    </div>
+                </div>
+            </div>
+            <div class="timer-center">
+                <div class="timer-display" id="timerDisplay">00:00</div>
+                <div class="timer-controls">
+                    <button type="button" class="timer-btn start" id="startBtn" onclick="startTimer()">▶ Start</button>
+                    <button type="button" class="timer-btn stop" id="stopBtn" onclick="stopTimer()" disabled>⏸ Stop</button>
+                    <button type="button" class="timer-btn reset" id="resetBtn" onclick="resetTimer()">↻ Reset</button>
+                    <button type="button" class="timer-btn now" onclick="setNow()">⏰ Now</button>
+                </div>
+            </div>
+            <div class="future-appointments-section">
+                <div class="future-appointments-label">📅 Future Appointments</div>
+                <div class="future-appointments-container" id="futureAppointmentsContainer">
+                    <div class="no-future-appointments">Select a name to view future appointments</div>
+                </div>
+            </div>
+            <div class="effect-size-grid" style="display: flex; flex-direction: column; gap: 4px; background: #222; padding: 6px; border-radius: 8px; max-width: 120px; border: 2px solid #000;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="pre" style="color: #fff; font-size: 9px;">PRE</label>
+                        <input type="number" id="pre" name="pre" step="0.1" style="padding: 3px; font-size: 12px; font-weight: bold; width: 100%;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="post" style="color: #fff; font-size: 9px;">POST</label>
+                        <input type="number" id="post" name="post" step="0.1" style="padding: 3px; font-size: 12px; font-weight: bold; width: 100%;">
+                    </div>
+                </div>
+                <button type="button" class="save-btn" onclick="saveEffectSize()" style="background: #0000FF; font-size: 10px; color: #ffffff; padding: 5px;">Save Effect Size</button>
+            </div>
+            <div class="obs-buttons-section">
+                <button type="button" class="obs-btn teacher" onclick="openObsForm('teacher')" title="Open Teacher Observation Form">Teacher OBS</button>
+                <button type="button" class="obs-btn student" onclick="openObsForm('student')" title="Open Student Observation Form">Student OBS</button>
+                <button type="button" class="obs-btn kickup" onclick="openObsForm('kickup')" title="Open KickUp">KickUp</button>
+            </div>
+            <div class="top-right-buttons">
+                <button type="button" class="load-questions-btn" onclick="loadConversationQuestions()" style="background: #00FF00; color: #000000;" title="Load conversation questions based on Strategy">⟳ Load Template</button>
+                <button type="button" class="save-btn" onclick="saveActionPlan()" style="background: #FFFF00; color: #000000;">🎯 Save Action Plan</button>
+                <button type="button" class="save-btn" onclick="submitForm()" style="background: #FF0000; color: #FFFFFF;">➜ Save Form</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         APPOINTMENT DETAILS - COLLAPSIBLE
+         ========================================== -->
+    <div class="collapsible-container">
+        <div class="collapsible-header" onclick="toggleContainer(this)">
+            <h3>📋 Appointment Details</h3>
+            <span class="collapsible-toggle">▼</span>
+        </div>
+        <div class="collapsible-content collapsed" style="background: #4CAF50;">
+            <form id="appointmentForm">
+                <div style="display: grid; grid-template-columns: 1fr 0.8fr 1.2fr 1fr; gap: 4px; margin-bottom: 4px;">
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="time">Time</label>
+                        <input type="time" id="time" name="time">
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <select id="location" name="location">
+                            <option value="">Select Location</option>
+                            <option value="Armstrong">Armstrong</option>
+                            <option value="Arrowpoint">Arrowpoint</option>
+                            <option value="Barrington">Barrington</option>
+                            <option value="Brown">Brown</option>
+                            <option value="Coldwater">Coldwater</option>
+                            <option value="Garrett">Garrett</option>
+                            <option value="Grannemann">Grannemann</option>
+                            <option value="Jamestown">Jamestown</option>
+                            <option value="Jury">Jury</option>
+                            <option value="Keeven">Keeven</option>
+                            <option value="Larimore">Larimore</option>
+                            <option value="Lawson">Lawson</option>
+                            <option value="Lusher">Lusher</option>
+                            <option value="McCurdy">McCurdy</option>
+                            <option value="Mcnair">Mcnair</option>
+                            <option value="Russell">Russell</option>
+                            <option value="Townsend">Townsend</option>
+                            <option value="Twillman">Twillman</option>
+                            <option value="Walker">Walker</option>
+                            <option value="Virtual">Virtual</option>
+                            <option value="Home">Home</option>
+                            <option value="SSD LC">SSD LC</option>
+                            <option value="SSD CO">SSD CO</option>
+                            <option value="Traveling">Traveling</option>
+                            <option value="Central HS">Central HS</option>
+                            <option value="Central MS">Central MS</option>
+                            <option value="East HS">East HS</option>
+                            <option value="East MS">East MS</option>
+                            <option value="North MS">North MS</option>
+                            <option value="Northwest">Northwest</option>
+                            <option value="Opportunity">Opportunity</option>
+                            <option value="Southeast">Southeast</option>
+                            <option value="West HS">West HS</option>
+                            <option value="West MS">West MS</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="owner">Owner</label>
+                        <select id="owner" name="owner">
+                            <option value="">Select Owner</option>
+                            <option value="Amanda Barton">Amanda Barton</option>
+                            <option value="Erin Kinion">Erin Kinion</option>
+                            <option value="Jessie Bibbins">Jessie Bibbins</option>
+                            <option value="Julie Harter">Julie Harter</option>
+                            <option value="Liz Klaas">Liz Klaas</option>
+                            <option value="Angela Edwards">Angela Edwards</option>
+                            <option value="HSD">HSD</option>
+                            <option value="HSD Region">HSD Region</option>
+                            <option value="HSD Elem Coord">HSD Elem Coord</option>
+                            <option value="Division">Division</option>
+                            <option value="Jason Martinez">Jason Martinez</option>
+                            <option value="Julianna Dempsey">Julianna Dempsey</option>
+                            <option value="Kevin Harr">Kevin Harr</option>
+                            <option value="Wendy Owens">Wendy Owens</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1.4fr 1.6fr 1fr 1fr; gap: 4px; margin-bottom: 4px;">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <select id="name" name="name" onchange="handleNameChange()">
+                            <option value="">Select Name</option>
+                            <option value="Division">Division</option>
+                            <option value="Focus Team">Focus Team</option>
+                            <option value="Design Team">Design Team</option>
+                            <option value="HSD Instructional Support Team">HSD Instructional Support Team</option>
+                            <option value="HSD Region">HSD Region</option>
+                            <option value="HSD IC">HSD IC</option>
+                            <option value="HSD Elem Coord">HSD Elem Coord</option>
+                            <option value="" disabled>───── Schools ─────</option>
+                            <option value="Armstrong">Armstrong</option>
+                            <option value="Arrowpoint">Arrowpoint</option>
+                            <option value="Barrington">Barrington</option>
+                            <option value="Brown">Brown</option>
+                            <option value="Coldwater">Coldwater</option>
+                            <option value="Garrett">Garrett</option>
+                            <option value="Grannemann">Grannemann</option>
+                            <option value="Jamestown">Jamestown</option>
+                            <option value="Jury">Jury</option>
+                            <option value="Keeven">Keeven</option>
+                            <option value="Larimore">Larimore</option>
+                            <option value="Lawson">Lawson</option>
+                            <option value="Lusher">Lusher</option>
+                            <option value="McCurdy">McCurdy</option>
+                            <option value="Mcnair">Mcnair</option>
+                            <option value="Russell">Russell</option>
+                            <option value="Townsend">Townsend</option>
+                            <option value="Twillman">Twillman</option>
+                            <option value="Walker">Walker</option>
+                            <option value="" disabled>───── Cohorts ─────</option>
+                            <option value="Academy Cohort Year 1">Academy Cohort Year 1</option>
+                            <option value="Academy Cohort Year 2">Academy Cohort Year 2</option>
+                            <option value="" disabled>───── Coaches ─────</option>
+                            <option value="Amanda Barton">Amanda Barton</option>
+                            <option value="Liz Klaas">Liz Klaas</option>
+                            <option value="Erin Kinion">Erin Kinion</option>
+                            <option value="Julie Harter">Julie Harter</option>
+                            <option value="Jessie Bibbins">Jessie Bibbins</option>
+                            <option value="" disabled>───── Teachers ─────</option>
+                            <option value="Abigail Schueler">Abigail Schueler</option>
+                            <option value="Alexus Blount">Alexus Blount</option>
+                            <option value="Amanda Smith">Amanda Smith</option>
+                            <option value="Amora Peay">Amora Peay</option>
+                            <option value="Anitra Mathis">Anitra Mathis</option>
+                            <option value="Anthony Klos">Anthony Klos</option>
+                            <option value="Ashleigh Walker">Ashleigh Walker</option>
+                            <option value="Ashlyn Mueller">Ashlyn Mueller</option>
+                            <option value="Becky Hosack">Becky Hosack</option>
+                            <option value="Cheryl Jackson">Cheryl Jackson</option>
+                            <option value="Christina Flewellen">Christina Flewellen</option>
+                            <option value="Cieria Nunley">Cieria Nunley</option>
+                            <option value="Daniel Aubuchon">Daniel Aubuchon</option>
+                            <option value="Danielle Castelli">Danielle Castelli</option>
+                            <option value="Deborah Dethardt">Deborah Dethardt</option>
+                            <option value="Diana Gomez">Diana Gomez</option>
+                            <option value="Donna Campbell">Donna Campbell</option>
+                            <option value="Dorrianne Forte">Dorrianne Forte</option>
+                            <option value="Earnest Howard">Earnest Howard</option>
+                            <option value="Elizabeth Lathangue">Elizabeth Lathangue</option>
+                            <option value="Emily Seithel">Emily Seithel</option>
+                            <option value="Erin Spoon">Erin Spoon</option>
+                            <option value="Gwendolyn Mcfoulon">Gwendolyn Mcfoulon</option>
+                            <option value="Hannah Eickmeyer">Hannah Eickmeyer</option>
+                            <option value="Heather Cunningham">Heather Cunningham</option>
+                            <option value="Hope Curtis">Hope Curtis</option>
+                            <option value="Jalana Maltimore">Jalana Maltimore</option>
+                            <option value="Jamie Geeding">Jamie Geeding</option>
+                            <option value="Jamie Thomas">Jamie Thomas</option>
+                            <option value="Janel Rhoda">Janel Rhoda</option>
+                            <option value="Jenn Nugent">Jenn Nugent</option>
+                            <option value="Jennifer Young">Jennifer Young</option>
+                            <option value="Jessica Trankle">Jessica Trankle</option>
+                            <option value="Kara Simmons">Kara Simmons</option>
+                            <option value="Karen Boyle">Karen Boyle</option>
+                            <option value="Karen Velasquez">Karen Velasquez</option>
+                            <option value="Kate Becker">Kate Becker</option>
+                            <option value="Katie Ferrara">Katie Ferrara</option>
+                            <option value="Katie Newton">Katie Newton</option>
+                            <option value="Kelsey Mantia">Kelsey Mantia</option>
+                            <option value="Kenya Henderson">Kenya Henderson</option>
+                            <option value="Kristy Moore">Kristy Moore</option>
+                            <option value="Krystal Keyes">Krystal Keyes</option>
+                            <option value="Kylee Hopkins">Kylee Hopkins</option>
+                            <option value="Lisa Johnson">Lisa Johnson</option>
+                            <option value="Mallory Hurt">Mallory Hurt</option>
+                            <option value="Marlowe Hanis">Marlowe Hanis</option>
+                            <option value="Mary Giammarco">Mary Giammarco</option>
+                            <option value="Megan Scheidker">Megan Scheidker</option>
+                            <option value="Melda Walker">Melda Walker</option>
+                            <option value="Melissa Hearn">Melissa Hearn</option>
+                            <option value="Merry Joy Tek-ing">Merry Joy Tek-ing</option>
+                            <option value="Michael Harris">Michael Harris</option>
+                            <option value="Molly Gibbs">Molly Gibbs</option>
+                            <option value="Molly Muncy">Molly Muncy</option>
+                            <option value="Neisha Manning">Neisha Manning</option>
+                            <option value="Niesha Frost">Niesha Frost</option>
+                            <option value="Paige Stahlman">Paige Stahlman</option>
+                            <option value="Rebecca Efken">Rebecca Efken</option>
+                            <option value="Regina Salmon">Regina Salmon</option>
+                            <option value="Rosalie Morales">Rosalie Morales</option>
+                            <option value="Samantha Riggs">Samantha Riggs</option>
+                            <option value="Santa Jones">Santa Jones</option>
+                            <option value="Sarah Hall">Sarah Hall</option>
+                            <option value="Sarah Mattingly">Sarah Mattingly</option>
+                            <option value="Shannan Kimbrough">Shannan Kimbrough</option>
+                            <option value="Shera Montipolca">Shera Montipolca</option>
+                            <option value="Stacie Grant">Stacie Grant</option>
+                            <option value="Stephanie Evans">Stephanie Evans</option>
+                            <option value="Susannah Leonard">Susannah Leonard</option>
+                            <option value="Taylor Doyle">Taylor Doyle</option>
+                            <option value="Tina Moore">Tina Moore</option>
+                            <option value="Tina Siemsen">Tina Siemsen</option>
+                            <option value="Tocarra Wilson">Tocarra Wilson</option>
+                            <option value="Trina Mitchell">Trina Mitchell</option>
+                            <option value="Vicki Dunn">Vicki Dunn</option>
+                            <option value="Victoria Sievers">Victoria Sievers</option>
+                            <option value="" disabled>───── Data Teams ─────</option>
+                            <option value="Armstrong Data Team">Armstrong Data Team</option>
+                            <option value="Arrowpoint Data Team">Arrowpoint Data Team</option>
+                            <option value="Barrington Data Team">Barrington Data Team</option>
+                            <option value="Brown Data Team">Brown Data Team</option>
+                            <option value="Coldwater Data Team">Coldwater Data Team</option>
+                            <option value="Garrett Data Team">Garrett Data Team</option>
+                            <option value="Grannemann Data Team">Grannemann Data Team</option>
+                            <option value="Jamestown Data Team">Jamestown Data Team</option>
+                            <option value="Jury Data Team">Jury Data Team</option>
+                            <option value="Keeven Data Team">Keeven Data Team</option>
+                            <option value="Larimore Data Team">Larimore Data Team</option>
+                            <option value="Lawson Data Team">Lawson Data Team</option>
+                            <option value="Lusher Data Team">Lusher Data Team</option>
+                            <option value="McCurdy Data Team">McCurdy Data Team</option>
+                            <option value="Mcnair Data Team">Mcnair Data Team</option>
+                            <option value="Russell Data Team">Russell Data Team</option>
+                            <option value="Townsend Data Team">Townsend Data Team</option>
+                            <option value="Twillman Data Team">Twillman Data Team</option>
+                            <option value="Walker Data Team">Walker Data Team</option>
+                            <option value="" disabled>───── Principals ─────</option>
+                            <option value="Angie Simmons">Angie Simmons</option>
+                            <option value="Jaimie Wilmes">Jaimie Wilmes</option>
+                            <option value="Mary Lowe">Mary Lowe</option>
+                            <option value="Melanie Zibatree">Melanie Zibatree</option>
+                            <option value="Tammy Blust">Tammy Blust</option>
+                            <option value="Tina Rogers">Tina Rogers</option>
+                            <option value="Trish Diebold">Trish Diebold</option>
+                            <option value="" disabled>───── Coach Staff ─────</option>
+                            <option value="Amanda Barton Staff">Amanda Barton Staff</option>
+                            <option value="Liz Klaas Staff">Liz Klaas Staff</option>
+                            <option value="Erin Kinion Staff">Erin Kinion Staff</option>
+                            <option value="Julie Harter Staff">Julie Harter Staff</option>
+                            <option value="Jessie Bibbins Staff">Jessie Bibbins Staff</option>
+                            <option value="" disabled>───── Leadership ─────</option>
+                            <option value="Angela Edwards">Angela Edwards</option>
+                            <option value="Julianna Dempsey">Julianna Dempsey</option>
+                            <option value="Kevin Haar">Kevin Haar</option>
+                            <option value="Mollie Bolton">Mollie Bolton</option>
+                            <option value="Shelly Everson">Shelly Everson</option>
+                            <option value="Wendy Owens">Wendy Owens</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventTitle">Event Title</label>
+                        <input type="text" id="eventTitle" name="eventTitle">
+                    </div>
+                    <div class="form-group">
+                        <label for="task">Type</label>
+                        <select id="task" name="task" onchange="handleTaskChange()">
+                            <option value="">Select Task</option>
+                            <option value="Coaching">Coaching</option>
+                            <option value="Consulting">Consulting</option>
+                            <option value="Data Team">Data Team</option>
+                            <option value="Division Meeting">Division Meeting</option>
+                            <option value="Email">Email</option>
+                            <option value="HSD Meeting">HSD Meeting</option>
+                            <option value="Informal">Informal</option>
+                            <option value="Modeling">Modeling</option>
+                            <option value="Observation">Observation</option>
+                            <option value="Observation Video">Observation Video</option>
+                            <option value="PD Event">PD Event</option>
+                            <option value="Phone">Phone</option>
+                            <option value="PLC">PLC</option>
+                            <option value="PL Event">PL Event</option>
+                            <option value="Staff Meeting">Staff Meeting</option>
+                            <option value="Student Specific Observation">Student Specific Observation</option>
+                            <option value="Student Specific">Student Specific</option>
+                            <option value="Task">Task</option>
+                            <option value="Text">Text</option>
+                            <option value="Training Event">Training Event</option>
+                            <option value="Walkthrough">Walkthrough</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="purpose">Purpose</label>
+                        <select id="purpose" name="purpose">
+                            <option value="">Select Purpose</option>
+                            <option value="Activate / Engage">Activate / Engage</option>
+                            <option value="Allocated Time">Allocated Time</option>
+                            <option value="Assessing Progress">Assessing Progress</option>
+                            <option value="Behavior">Behavior</option>
+                            <option value="CCI">CCI</option>
+                            <option value="Coaching">Coaching</option>
+                            <option value="Collaboration">Collaboration</option>
+                            <option value="Communication">Communication</option>
+                            <option value="Consulting">Consulting</option>
+                            <option value="Curriculum">Curriculum</option>
+                            <option value="Data Analysis">Data Analysis</option>
+                            <option value="Data Collection">Data Collection</option>
+                            <option value="Data Team">Data Team</option>
+                            <option value="Dialoge / Discuss">Dialoge / Discuss</option>
+                            <option value="Explicit Instruction">Explicit Instruction</option>
+                            <option value="Explore / Discover">Explore / Discover</option>
+                            <option value="HLP 16">HLP 16</option>
+                            <option value="HLP 7">HLP 7</option>
+                            <option value="Meeting">Meeting</option>
+                            <option value="Organize / Integrate">Organize / Integrate</option>
+                            <option value="Other">Other</option>
+                            <option value="OTR">OTR</option>
+                            <option value="Planning">Planning</option>
+                            <option value="Praise Ratio">Praise Ratio</option>
+                            <option value="Preparation">Preparation</option>
+                            <option value="Professional Development">Professional Development</option>
+                            <option value="Professional Learning">Professional Learning</option>
+                            <option value="Professional Responsibility">Professional Responsibility</option>
+                            <option value="Professional Training">Professional Training</option>
+                            <option value="Scheduling">Scheduling</option>
+                            <option value="Setting Direction">Setting Direction</option>
+                            <option value="Student Achievement">Student Achievement</option>
+                            <option value="Task / Record Keeping">Task / Record Keeping</option>
+                            <option value="Universal Checklist">Universal Checklist</option>
+                            <option value="Updates">Updates</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MAIN PURPLE FORM CONTAINER
+         ========================================== -->
+    <div class="container" style="background: #C77DFF;">
+        <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; margin-bottom: 6px; align-items: end;">
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status" name="status" onchange="updateStatusColor()">
+                    <option value="">Select Status</option>
+                    <option value="Archived">Archived</option>
+                    <option value="Canceled">Canceled</option>
+                    <option value="Complete">Complete</option>
+                    <option value="Did Not Attend">Did Not Attend</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="No Show">No Show</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Processed">Processed</option>
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="Scheduling Conflict">Scheduling Conflict</option>
+                    <option value="Unresolved">Unresolved</option>
+                    <option value="Unscheduled">Unscheduled</option>
+                </select>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center; padding-bottom: 6px;">
+                <input type="checkbox" id="completeCheckbox" style="width: 24px; height: 24px; cursor: pointer;" title="Mark as Complete">
+            </div>
+            <div class="form-group">
+                <label for="strategy">Strategy</label>
+                <select id="strategy" name="strategy">
+                    <option value="">Select Strategy</option>
+                    <option value="Planning Conversation">⭐ Planning Conversation</option>
+                    <option value="Reflecting Conversation">⭐ Reflecting Conversation</option>
+                    <option value="Problem Resolving Conversation">⭐ Problem Resolving Conversation</option>
+                    <option value="Observation">⭐ Observation</option>
+                    <option value="PDSA">⭐ PDSA</option>
+                    <option value="General Coaching">⭐ General Coaching</option>
+                    <option value="AM Tasks">AM Tasks</option>
+                    <option value="PM Tasks">PM Tasks</option>
+                    <option value="Other Tasks">Other Tasks</option>
+                    <option value="Weekend Task">Weekend Task</option>
+                    <option value="" disabled>─────────────────</option>
+                    <option value="Aliance Building">Aliance Building</option>
+                    <option value="Appointment Reminders">Appointment Reminders</option>
+                    <option value="Calibrating Conversation">Calibrating Conversation</option>
+                    <option value="Checklist for Strategy">Checklist for Strategy</option>
+                    <option value="Classroom Learning System">Classroom Learning System</option>
+                    <option value="Clear Message">Clear Message</option>
+                    <option value="Cognitive Coaching">Cognitive Coaching</option>
+                    <option value="Cohort">Cohort</option>
+                    <option value="Collaboration">Collaboration</option>
+                    <option value="Consulting">Consulting</option>
+                    <option value="Data Team">Data Team</option>
+                    <option value="Data Team Reminders">Data Team Reminders</option>
+                    <option value="Elbow Coaching">Elbow Coaching</option>
+                    <option value="Explicit Instruction - Part 1">Explicit Instruction - Part 1</option>
+                    <option value="Explicit Instruction - Part 2">Explicit Instruction - Part 2</option>
+                    <option value="Explicit Instruction - Part 3">Explicit Instruction - Part 3</option>
+                    <option value="HLP 7">HLP 7</option>
+                    <option value="Impact Cycle">Impact Cycle</option>
+                    <option value="Meeting Facilitation">Meeting Facilitation</option>
+                    <option value="Meeting Participant">Meeting Participant</option>
+                    <option value="Modeling">Modeling</option>
+                    <option value="PD Event">PD Event</option>
+                    <option value="Peer Observation">Peer Observation</option>
+                    <option value="PL Event">PL Event</option>
+                    <option value="Planning PL">Planning PL</option>
+                    <option value="Professional Learning">Professional Learning</option>
+                    <option value="Providing Materials / Resources">Providing Materials / Resources</option>
+                    <option value="Student Centered Coaching">Student Centered Coaching</option>
+                    <option value="Student Specific Observation">Student Specific Observation</option>
+                    <option value="Successful Meeting Structures">Successful Meeting Structures</option>
+                    <option value="Task">Task</option>
+                    <option value="Teacher Clarity">Teacher Clarity</option>
+                    <option value="Training Event">Training Event</option>
+                    <option value="Universal Checklist">Universal Checklist</option>
+                    <option value="Walkthrough Feedback">Walkthrough Feedback</option>
+                </select>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="left-column">
+                <div class="previous-notes-wrapper">
+                    <label for="previousNotes">Previous Appointment Notes (Read-Only)</label>
+                    <div id="previousNotes" class="rich-text-editor previous-notes"></div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+                    <div class="task-field-wrapper">
+                        <label for="taskField">Task Field</label>
+                        <div id="taskField" class="rich-text-editor" style="min-height: 96px;">
+                            <div class="tasks-checklist">
+                                <div class="checkbox-item"><input type="checkbox" id="taskField_task_0"><label contenteditable="true"></label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="taskField_task_1"><label contenteditable="true"></label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="taskField_task_2"><label contenteditable="true"></label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="taskField_task_3"><label contenteditable="true"></label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="taskField_task_4"><label contenteditable="true"></label></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label>States of Mind</label>
+                        <div class="states-of-mind-container" id="statesOfMindContainer">
+                            <div class="state-item" data-state="consciousness">
+                                <span class="state-name">Consciousness</span>
+                                <div class="star-rating" data-state="consciousness">
+                                    <span class="star" data-value="1">☆</span><span class="star" data-value="2">☆</span><span class="star" data-value="3">☆</span><span class="star" data-value="4">☆</span><span class="star" data-value="5">☆</span>
+                                </div>
+                            </div>
+                            <div class="state-item" data-state="craftsmanship">
+                                <span class="state-name">Craftsmanship</span>
+                                <div class="star-rating" data-state="craftsmanship">
+                                    <span class="star" data-value="1">☆</span><span class="star" data-value="2">☆</span><span class="star" data-value="3">☆</span><span class="star" data-value="4">☆</span><span class="star" data-value="5">☆</span>
+                                </div>
+                            </div>
+                            <div class="state-item" data-state="efficacy">
+                                <span class="state-name">Efficacy</span>
+                                <div class="star-rating" data-state="efficacy">
+                                    <span class="star" data-value="1">☆</span><span class="star" data-value="2">☆</span><span class="star" data-value="3">☆</span><span class="star" data-value="4">☆</span><span class="star" data-value="5">☆</span>
+                                </div>
+                            </div>
+                            <div class="state-item" data-state="flexibility">
+                                <span class="state-name">Flexibility</span>
+                                <div class="star-rating" data-state="flexibility">
+                                    <span class="star" data-value="1">☆</span><span class="star" data-value="2">☆</span><span class="star" data-value="3">☆</span><span class="star" data-value="4">☆</span><span class="star" data-value="5">☆</span>
+                                </div>
+                            </div>
+                            <div class="state-item" data-state="interdependence">
+                                <span class="state-name">Interdependence</span>
+                                <div class="star-rating" data-state="interdependence">
+                                    <span class="star" data-value="1">☆</span><span class="star" data-value="2">☆</span><span class="star" data-value="3">☆</span><span class="star" data-value="4">☆</span><span class="star" data-value="5">☆</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                    <div class="form-group">
+                        <label for="agenda">Agenda</label>
+                        <div id="agenda" class="rich-text-editor" style="min-height: 96px;">
+                            <div class="tasks-checklist">
+                                <div class="checkbox-item"><input type="checkbox" id="agenda_task_0"><label contenteditable="true"></label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="agenda_task_1"><label contenteditable="true"></label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="agenda_task_2"><label contenteditable="true"></label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="agenda_task_3"><label contenteditable="true"></label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="agenda_task_4"><label contenteditable="true"></label></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="thoughts">Reminders</label>
+                        <div id="thoughts" class="rich-text-editor" style="min-height: 96px;">
+                            <div class="tasks-checklist">
+                                <div class="checkbox-item"><input type="checkbox" id="thoughts_task_0"><label contenteditable="true"></label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="thoughts_task_1"><label contenteditable="true"></label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="thoughts_task_2"><label contenteditable="true"></label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="thoughts_task_3"><label contenteditable="true"></label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="thoughts_task_4"><label contenteditable="true"></label></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="formatting-toolbar">
+                    <button type="button" class="format-btn" onclick="formatText('bold')">Bold</button>
+                    <button type="button" class="format-btn" onclick="formatText('italic')">Italic</button>
+                    <button type="button" class="format-btn" onclick="formatText('underline')">Underline</button>
+                    <button type="button" class="format-btn" onclick="formatText('insertUnorderedList')">Bullets</button>
+                    <button type="button" class="format-btn" onclick="formatText('insertOrderedList')">Numbers</button>
+                    <button type="button" class="format-btn" onclick="formatText('indent')">→ Indent</button>
+                    <button type="button" class="format-btn" onclick="formatText('outdent')">← Outdent</button>
+                </div>
+                <div id="notes" class="rich-text-editor" contenteditable="true" style="flex: 1; min-height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         ACTION PLAN - COLLAPSIBLE
+         ========================================== -->
+    <div class="collapsible-container">
+        <div class="collapsible-header" style="background: #FFFF00; color: #000;" onclick="toggleContainer(this)">
+            <h3>🎯 Action Plan</h3>
+            <span class="collapsible-toggle">▼</span>
+        </div>
+        <div class="collapsible-content collapsed" style="background: #FFFF00;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="background: #FFFACD; padding: 15px; border-radius: 8px; border: 2px solid #000;">
+                    <h4 style="margin-top: 0;">Current Action Plan</h4>
+                    <div id="currentActionPlan"><i style="color: #999;">Select a teacher to view current action plan</i></div>
+                </div>
+                <div style="background: #FFFFE0; padding: 15px; border-radius: 8px; border: 2px solid #000;">
+                    <h4 style="margin-top: 0;">Add New Action Plan</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                        <div class="form-group">
+                            <label for="actionItems">Action Items</label>
+                            <select id="actionItems" name="actionItems">
+                                <option value="">Select Action Item</option>
+                                <option value="Universal Checklist">Universal Checklist</option>
+                                <option value="Quality Instruction">Quality Instruction</option>
+                                <option value="Classroom Learning System">Classroom Learning System</option>
+                                <option value="Assessment">Assessment</option>
+                                <option value="Collaboration">Collaboration</option>
+                                <option value="Social / Emotional / Behavior">Social / Emotional / Behavior</option>
+                                <option value="HSD Partnership">HSD Partnership</option>
+                                <option value="Professional Development">Professional Development</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Data Team">Data Team</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dueDate">Due Date</label>
+                            <input type="date" id="dueDate" name="dueDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="actionStatus">Status</label>
+                            <select id="actionStatus" name="actionStatus">
+                                <option value="">Select Status</option>
+                                <option value="Completed">Completed</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Not Started">Not Started</option>
+                                <option value="Rejected">Rejected</option>
+                                <option value="Delayed">Delayed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="actionDetails">Details / Notes</label>
+                        <textarea id="actionDetails" name="actionDetails" style="min-height: 40px;"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         QUESTION BANK - COLLAPSIBLE (FULL)
+         ========================================== -->
+    <div class="collapsible-container">
+        <div class="collapsible-header question-bank-header" style="background: #0000FF; color: #fff;" onclick="toggleQuestionBank(this)">
+            <h3>📚 Question Bank</h3>
+            <div style="display: flex; gap: 8px; align-items: center; margin-left: auto;" onclick="event.stopPropagation();">
+                <button type="button" class="expand-collapse-btn" onclick="expandAllCategories()">Expand All</button>
+                <button type="button" class="expand-collapse-btn" onclick="collapseAllCategories()">Collapse All</button>
+                <button type="button" class="add-selected-btn" onclick="addSelectedQuestions()">➕ Add Selected</button>
+            </div>
+            <span class="collapsible-toggle">▼</span>
+        </div>
+        <div class="question-bank-content collapsed">
+            <div class="question-categories-grid">
+                <!-- Setting Direction (Red) -->
+                <div class="question-category">
+                    <div class="category-header setting-direction" onclick="toggleCategory(this)">
+                        <span class="category-title">જ⁀➴ Setting Direction</span>
+                        <span class="category-toggle">▼</span>
+                    </div>
+                    <div class="category-content">
+                        <div class="question-list">
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What are some of the things that are going well?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What might be some opportunities for improvement?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What content or skills are students currently learning?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What data are you using to measure their achievement?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What might be some goals you have for your students?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What kind of support would you and your students benefit from?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-divider"></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What is the goal you're working toward with your students?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What does success look like for this lesson/unit?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What specific student outcomes are you hoping to see?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">How will you know when students have mastered this skill?</span><span class="click-hint">click to add</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Planning (Blue) -->
+                <div class="question-category">
+                    <div class="category-header planning" onclick="toggleCategory(this)">
+                        <span class="category-title">📋 Planning</span>
+                        <span class="category-toggle">▼</span>
+                    </div>
+                    <div class="category-content">
+                        <div class="question-list">
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What are your goals or outcomes?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">How will you know you are successful? What might success look or sound like?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What evidence will you collect?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What data could I collect for you?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">If you could videotape this lesson, what would you want to see or hear in yourself?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-divider"></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">Given the data, what content, skill, or IEP goals might be your focus?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What do the data tell you about students' current achievement in that area?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What changes would you like to see in the next month? What might be a reasonable goal?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">In thinking about that goal, what could be some strategies you are considering?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What evidence will you collect to measure students' achievement?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What support might be helpful for you and your students?</span><span class="click-hint">click to add</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reflecting (Yellow) -->
+                <div class="question-category">
+                    <div class="category-header reflecting" onclick="toggleCategory(this)">
+                        <span class="category-title">❝ ❞ Reflecting</span>
+                        <span class="category-toggle">▼</span>
+                    </div>
+                    <div class="category-content">
+                        <div class="question-list">
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">How do you think it went? How would you rate the lesson on a scale of 1-10?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">How does the lesson compare with what you had planned or envisioned?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What do you want to stay mindful of from now on?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">Given the data, what might be your next steps?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-divider"></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">During our last conversation, you selected _____ as a goal. How did it go?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What does the evidence tell you about students' current achievement?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What strategies did you use? What strategies weren't as effective?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What worked? What would we tweak? Where do we go from here?</span><span class="click-hint">click to add</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data (Brown) -->
+                <div class="question-category">
+                    <div class="category-header data" onclick="toggleCategory(this)">
+                        <span class="category-title">📉 Data</span>
+                        <span class="category-toggle">▼</span>
+                    </div>
+                    <div class="category-content">
+                        <div class="question-list">
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What are you noticing about the data?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What can we celebrate?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What are some opportunities for improvement?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What might be a reasonable goal?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What strategies will we use?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-divider"></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What does the data tell us about student learning?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What patterns or trends do you notice?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">Which students are making progress? Which need additional support?</span><span class="click-hint">click to add</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HLP 7 (Purple) -->
+                <div class="question-category">
+                    <div class="category-header hlp7" onclick="toggleCategory(this)">
+                        <span class="category-title">HLP 7</span>
+                        <span class="category-toggle">▼</span>
+                    </div>
+                    <div class="category-content">
+                        <div class="question-list">
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What will respect, responsibility, best effort, etc., mean or look like in your classroom?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">Do the expectations, rules, and procedures reflect the cultures, values, and beliefs of students and families?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">Why should school staff provide students with a rationale for expectations, rules, and procedures?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">Why should educators treat behavioral challenges the same way we treat academic challenges?</span><span class="click-hint">click to add</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HLP 16 (Teal) -->
+                <div class="question-category">
+                    <div class="category-header hlp16" onclick="toggleCategory(this)">
+                        <span class="category-title">HLP 16</span>
+                        <span class="category-toggle">▼</span>
+                    </div>
+                    <div class="category-content">
+                        <div class="question-list">
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What would you like students to know and be able to do at the end? How will you share this?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What skills do students already know that will be needed for this lesson?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">When you envision the model, what do you see yourself doing or saying?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What activities are you considering to help students practice the new skill?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">How will you help students self-assess their understanding of the new skill?</span><span class="click-hint">click to add</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Problem-Resolving (Cyan) -->
+                <div class="question-category">
+                    <div class="category-header problem-resolving" onclick="toggleCategory(this)">
+                        <span class="category-title">⚠︎ Problem-Resolving</span>
+                        <span class="category-toggle">▼</span>
+                    </div>
+                    <div class="category-content">
+                        <div class="question-list">
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What can you tell me about what's going on?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What is it that you want? How do you want things to be?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What are some ideas that you have?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">How has this conversation helped your thinking?</span><span class="click-hint">click to add</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Meeting (Orange) -->
+                <div class="question-category">
+                    <div class="category-header meeting" onclick="toggleCategory(this)">
+                        <span class="category-title">🗫 Meeting</span>
+                        <span class="category-toggle">▼</span>
+                    </div>
+                    <div class="category-content">
+                        <div class="question-list">
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What are our objectives for today's meeting?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What items need to be addressed on our agenda?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What decisions need to be made today?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">Who needs to be involved in this discussion?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What are the next steps and who is responsible?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">Do we need to schedule a follow-up meeting?</span><span class="click-hint">click to add</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student (Green) -->
+                <div class="question-category">
+                    <div class="category-header student" onclick="toggleCategory(this)">
+                        <span class="category-title">𖠋 Student</span>
+                        <span class="category-toggle">▼</span>
+                    </div>
+                    <div class="category-content">
+                        <div class="question-list">
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What does the student like to do? What are they good at?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What specific behavior will we focus on first? Be as detailed and observable as possible.</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">Why do we think this behavior is occurring? What purpose does it serve?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What strategies are we currently using that are working well?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What specific behavior do we want to see in the next 4 weeks?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">How will we teach the desired replacement behavior?</span><span class="click-hint">click to add</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Organize and Integrate (Green) -->
+                <div class="question-category">
+                    <div class="category-header debrief" onclick="toggleCategory(this)">
+                        <span class="category-title">★★★★☆ Organize and Integrate</span>
+                        <span class="category-toggle">▼</span>
+                    </div>
+                    <div class="category-content">
+                        <div class="question-list">
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What are some things that have gone well?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">What might be some of the things you have done that led to the outcomes?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">Moving forward, what are some things you will pursue?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">In what ways has our collaboration supported your practice?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-divider"></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">Where are you now in your practice compared to where you were when we started?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">How did your students benefit from this coaching cycle?</span><span class="click-hint">click to add</span></div>
+                            <div class="question-item" onclick="toggleQuestionSelection(this)"><input type="checkbox" class="question-checkbox"><span class="question-text">Which coaching practices were most useful / least useful to you?</span><span class="click-hint">click to add</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         EFFECT SIZE SCORING CONTAINER (ALL 8)
+         ========================================== -->
+    <div class="effect-size-main-container">
+        <div class="effect-size-main-header" onclick="toggleEffectSizeContainer(this)">
+            <h3>📊 Effect Size Scoring Categories</h3>
+            <span class="effect-size-main-toggle">▼</span>
+        </div>
+        <div class="effect-size-main-content collapsed">
+            
+            <!-- 1: Coach Data Collection (Red) -->
+            <div class="effect-size-subcategory">
+                <div class="subcategory-header coach-data-collection" onclick="toggleSubcategory(this)">
+                    <span class="subcategory-title">🔴 Coach Data Collection</span>
+                    <span class="subcategory-toggle">▼</span>
+                </div>
+                <div class="subcategory-content collapsed">
+                    <div class="rating-grid">
+                        <div class="rating-item"><span class="rating-label">Preparation</span><div class="effect-star-rating" data-category="coachdatacollection" data-field="preparation"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Data Recording</span><div class="effect-star-rating" data-category="coachdatacollection" data-field="datarecording"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Objectivity</span><div class="effect-star-rating" data-category="coachdatacollection" data-field="objectivity"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Completeness</span><div class="effect-star-rating" data-category="coachdatacollection" data-field="completeness"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Timeliness</span><div class="effect-star-rating" data-category="coachdatacollection" data-field="timeliness"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2: Teacher Data Analysis (Yellow) -->
+            <div class="effect-size-subcategory">
+                <div class="subcategory-header teacher-data-analysis" onclick="toggleSubcategory(this)">
+                    <span class="subcategory-title">🟡 Teacher Data Analysis</span>
+                    <span class="subcategory-toggle">▼</span>
+                </div>
+                <div class="subcategory-content collapsed">
+                    <div class="rating-grid">
+                        <div class="rating-item"><span class="rating-label">Data Interpretation</span><div class="effect-star-rating" data-category="teacherdataanalysis" data-field="datainterpretation"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Pattern Recognition</span><div class="effect-star-rating" data-category="teacherdataanalysis" data-field="patternrecognition"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Action Planning</span><div class="effect-star-rating" data-category="teacherdataanalysis" data-field="actionplanning"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Student Focus</span><div class="effect-star-rating" data-category="teacherdataanalysis" data-field="studentfocus"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Follow-Through</span><div class="effect-star-rating" data-category="teacherdataanalysis" data-field="followthrough"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3: Meeting Structures (Cyan) -->
+            <div class="effect-size-subcategory">
+                <div class="subcategory-header meeting-structures" onclick="toggleSubcategory(this)">
+                    <span class="subcategory-title">🔵 Meeting Structures</span>
+                    <span class="subcategory-toggle">▼</span>
+                </div>
+                <div class="subcategory-content collapsed">
+                    <div class="rating-grid">
+                        <div class="rating-item"><span class="rating-label">Agenda Clarity</span><div class="effect-star-rating" data-category="meetingstructures" data-field="agendaclarity"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Time Management</span><div class="effect-star-rating" data-category="meetingstructures" data-field="timemanagement"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Participation</span><div class="effect-star-rating" data-category="meetingstructures" data-field="participation"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Action Items</span><div class="effect-star-rating" data-category="meetingstructures" data-field="actionitems"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Follow-Up</span><div class="effect-star-rating" data-category="meetingstructures" data-field="followup"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4: Collaboration (Magenta) -->
+            <div class="effect-size-subcategory">
+                <div class="subcategory-header collaboration" onclick="toggleSubcategory(this)">
+                    <span class="subcategory-title">🟣 Collaboration</span>
+                    <span class="subcategory-toggle">▼</span>
+                </div>
+                <div class="subcategory-content collapsed">
+                    <div class="rating-grid">
+                        <div class="rating-item"><span class="rating-label">Communication</span><div class="effect-star-rating" data-category="collaboration" data-field="communication"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Shared Goals</span><div class="effect-star-rating" data-category="collaboration" data-field="sharedgoals"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Trust Building</span><div class="effect-star-rating" data-category="collaboration" data-field="trustbuilding"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Resource Sharing</span><div class="effect-star-rating" data-category="collaboration" data-field="resourcesharing"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Problem Solving</span><div class="effect-star-rating" data-category="collaboration" data-field="problemsolving"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5: Consulting (Deep Sky Blue) -->
+            <div class="effect-size-subcategory">
+                <div class="subcategory-header consulting" onclick="toggleSubcategory(this)">
+                    <span class="subcategory-title">💠 Consulting</span>
+                    <span class="subcategory-toggle">▼</span>
+                </div>
+                <div class="subcategory-content collapsed">
+                    <div class="rating-grid">
+                        <div class="rating-item"><span class="rating-label">Needs Assessment</span><div class="effect-star-rating" data-category="consulting" data-field="needsassessment"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Expert Guidance</span><div class="effect-star-rating" data-category="consulting" data-field="expertguidance"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Resource Provision</span><div class="effect-star-rating" data-category="consulting" data-field="resourceprovision"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Implementation Support</span><div class="effect-star-rating" data-category="consulting" data-field="implementationsupport"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Outcome Monitoring</span><div class="effect-star-rating" data-category="consulting" data-field="outcomemonitoring"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6: Coaching (Green) -->
+            <div class="effect-size-subcategory">
+                <div class="subcategory-header coaching" onclick="toggleSubcategory(this)">
+                    <span class="subcategory-title">🟢 Coaching</span>
+                    <span class="subcategory-toggle">▼</span>
+                </div>
+                <div class="subcategory-content collapsed">
+                    <div class="rating-grid">
+                        <div class="rating-item"><span class="rating-label">Rapport Building</span><div class="effect-star-rating" data-category="coaching" data-field="rapportbuilding"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Questioning Skills</span><div class="effect-star-rating" data-category="coaching" data-field="questioningskills"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Active Listening</span><div class="effect-star-rating" data-category="coaching" data-field="activelistening"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Goal Setting</span><div class="effect-star-rating" data-category="coaching" data-field="goalsetting"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Feedback Quality</span><div class="effect-star-rating" data-category="coaching" data-field="feedbackquality"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7: Meeting Participation (Purple) -->
+            <div class="effect-size-subcategory">
+                <div class="subcategory-header meeting-participation" onclick="toggleSubcategory(this)">
+                    <span class="subcategory-title">🟪 Meeting Participation</span>
+                    <span class="subcategory-toggle">▼</span>
+                </div>
+                <div class="subcategory-content collapsed">
+                    <div class="rating-grid">
+                        <div class="rating-item"><span class="rating-label">Preparation</span><div class="effect-star-rating" data-category="meeting" data-field="preparation"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Engagement</span><div class="effect-star-rating" data-category="meeting" data-field="engagement"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Contribution</span><div class="effect-star-rating" data-category="meeting" data-field="contribution"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Professionalism</span><div class="effect-star-rating" data-category="meeting" data-field="professionalism"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Follow-Through</span><div class="effect-star-rating" data-category="meeting" data-field="followthrough"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8: Data Team (Brown) -->
+            <div class="effect-size-subcategory">
+                <div class="subcategory-header data-team" onclick="toggleSubcategory(this)">
+                    <span class="subcategory-title">🟤 Data Team</span>
+                    <span class="subcategory-toggle">▼</span>
+                </div>
+                <div class="subcategory-content collapsed">
+                    <div class="rating-grid">
+                        <div class="rating-item"><span class="rating-label">Data Preparation</span><div class="effect-star-rating" data-category="datateam" data-field="datapreparation"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Analysis Depth</span><div class="effect-star-rating" data-category="datateam" data-field="analysisdepth"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Team Collaboration</span><div class="effect-star-rating" data-category="datateam" data-field="teamcollaboration"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Strategy Development</span><div class="effect-star-rating" data-category="datateam" data-field="strategydevelopment"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                        <div class="rating-item"><span class="rating-label">Progress Monitoring</span><div class="effect-star-rating" data-category="datateam" data-field="progressmonitoring"><span class="effect-star" data-value="1">☆</span><span class="effect-star" data-value="2">☆</span><span class="effect-star" data-value="3">☆</span><span class="effect-star" data-value="4">☆</span><span class="effect-star" data-value="5">☆</span></div></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ==========================================
+         JAVASCRIPT - MUST BE BEFORE ANY ONCLICK HANDLERS
+         ========================================== -->
+    <script>
+        // ==========================================
+        // GLOBAL VARIABLES - Define first
+        // ==========================================
+        var timerInterval = null;
+        var timerSeconds = 0;
+        var timerRunning = false;
+        var effectSizeRatings = {};
+        var statesOfMindRatings = {consciousness: 0, craftsmanship: 0, efficacy: 0, flexibility: 0, interdependence: 0};
+        var isLoadingData = false;
+        var currentRowNumber = null;
+        var scriptUrl = '';
+        var isAppsScript = false;
+
+        // ==========================================
+        // INITIALIZE TEMPLATE VARIABLES SAFELY
+        // ==========================================
+        (function() {
+            try {
+                // These will be replaced by Apps Script template engine
+                var rowNumberRaw = '<?!= rowNumber ?>';
+                if (rowNumberRaw && rowNumberRaw !== 'null' && rowNumberRaw !== '' && rowNumberRaw !== 'undefined') {
+                    currentRowNumber = parseInt(rowNumberRaw) || null;
+                }
+            } catch (e) {
+                console.log('Row number not available: ' + e);
+                currentRowNumber = null;
+            }
+            
+            try {
+                scriptUrl = '<?!= scriptUrl ?>';
+            } catch (e) {
+                console.log('Script URL not available: ' + e);
+                scriptUrl = '';
+            }
+            
+            // Check if running in Apps Script environment
+            isAppsScript = (typeof google !== 'undefined' && google.script && google.script.run);
+            console.log('Apps Script environment: ' + isAppsScript);
+            console.log('Current row number: ' + currentRowNumber);
+        })();
+
+        // ==========================================
+        // COLLAPSIBLE CONTAINER TOGGLE - Define early for onclick handlers
+        // ==========================================
+        function toggleContainer(header) {
+            if (!header) return;
+            var content = header.nextElementSibling;
+            var toggle = header.querySelector('.collapsible-toggle');
+            if (!content) return;
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                if (toggle) toggle.textContent = '\u25B2';
+            } else {
+                content.classList.add('collapsed');
+                if (toggle) toggle.textContent = '\u25BC';
+            }
+        }
+
+        // Toggle function for Question Bank
+        function toggleQuestionBank(header) {
+            if (!header) return;
+            var content = header.nextElementSibling;
+            var toggle = header.querySelector('.collapsible-toggle');
+            if (!content) return;
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                if (toggle) toggle.textContent = '\u25B2';
+            } else {
+                content.classList.add('collapsed');
+                if (toggle) toggle.textContent = '\u25BC';
+            }
+        }
+
+        // ==========================================
+        // EFFECT SIZE MAIN CONTAINER TOGGLE
+        // ==========================================
+        function toggleEffectSizeContainer(header) {
+            if (!header) return;
+            var content = header.nextElementSibling;
+            var toggle = header.querySelector('.effect-size-main-toggle');
+            if (!content) return;
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                if (toggle) toggle.textContent = '\u25B2';
+            } else {
+                content.classList.add('collapsed');
+                if (toggle) toggle.textContent = '\u25BC';
+            }
+        }
+
+        // ==========================================
+        // EFFECT SIZE SUBCATEGORY TOGGLE
+        // ==========================================
+        function toggleSubcategory(header) {
+            if (!header) return;
+            var content = header.nextElementSibling;
+            var toggle = header.querySelector('.subcategory-toggle');
+            if (!content) return;
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                if (toggle) toggle.textContent = '\u25B2';
+            } else {
+                content.classList.add('collapsed');
+                if (toggle) toggle.textContent = '\u25BC';
+            }
+        }
+
+        // ==========================================
+        // QUESTION BANK FUNCTIONS
+        // ==========================================
+        function toggleCategory(header) {
+            if (!header) return;
+            var content = header.nextElementSibling;
+            var toggle = header.querySelector('.category-toggle');
+            if (!content) {
+                console.error('No content found');
+                return;
+            }
+            var isHidden = content.style.display === 'none' || content.style.display === '' || !content.style.display;
+            if (isHidden) {
+                content.style.display = 'block';
+                if (toggle) toggle.textContent = '\u25B2';
+            } else {
+                content.style.display = 'none';
+                if (toggle) toggle.textContent = '\u25BC';
+            }
+        }
+
+        function expandAllCategories() {
+            document.querySelectorAll('.category-content').forEach(function(content) {
+                content.style.display = 'block';
+            });
+            document.querySelectorAll('.category-toggle').forEach(function(toggle) {
+                toggle.textContent = '\u25B2';
+            });
+        }
+
+        function collapseAllCategories() {
+            document.querySelectorAll('.category-content').forEach(function(content) {
+                content.style.display = 'none';
+            });
+            document.querySelectorAll('.category-toggle').forEach(function(toggle) {
+                toggle.textContent = '\u25BC';
+            });
+        }
+
+        function toggleQuestionSelection(item) {
+            if (!item) return;
+            var checkbox = item.querySelector('.question-checkbox');
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+                if (checkbox.checked) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            }
+        }
+
+        function addSelectedQuestions() {
+            var selectedQuestions = [];
+            document.querySelectorAll('.question-item.selected').forEach(function(item) {
+                var textElement = item.querySelector('.question-text');
+                if (textElement) {
+                    selectedQuestions.push(textElement.textContent);
+                }
+            });
+            if (selectedQuestions.length === 0) {
+                addStatusLog('No questions selected', 'other');
+                return;
+            }
+            var notesEditor = document.getElementById('notes');
+            if (notesEditor) {
+                var questionHtml = '<ul>';
+                selectedQuestions.forEach(function(q) {
+                    questionHtml += '<li><b>' + q + '</b></li>';
+                });
+                questionHtml += '</ul>';
+                notesEditor.innerHTML = notesEditor.innerHTML + questionHtml;
+            }
+            document.querySelectorAll('.question-item.selected').forEach(function(item) {
+                item.classList.remove('selected');
+                var checkbox = item.querySelector('.question-checkbox');
+                if (checkbox) checkbox.checked = false;
+            });
+            addStatusLog(selectedQuestions.length + ' questions added', 'other');
+        }
+
+        // ==========================================
+        // STATUS COLOR FUNCTION
+        // ==========================================
+        function updateStatusColor() {
+            var statusSelect = document.getElementById('status');
+            if (!statusSelect) return;
+            var value = statusSelect.value;
+            if (value === 'Scheduled') {
+                statusSelect.style.backgroundColor = 'cyan';
+            } else if (value === 'Complete') {
+                statusSelect.style.backgroundColor = '#00FF00';
+            } else {
+                statusSelect.style.backgroundColor = '';
+            }
+        }
+
+        // ==========================================
+        // STATUS LOG FUNCTION
+        // ==========================================
+        function addStatusLog(message, column) {
+            var columnMap = {loading: 'loadingColumn', other: 'otherColumn', saving: 'savingColumn'};
+            var columnId = columnMap[column] || 'otherColumn';
+            var columnElement = document.getElementById(columnId);
+            if (columnElement) {
+                var timestamp = new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false});
+                var logEntry = document.createElement('div');
+                logEntry.className = 'status-log-entry';
+                logEntry.innerHTML = '<span class="log-time">' + timestamp + '</span> ' + message;
+                var header = columnElement.querySelector('.status-column-header');
+                if (header && header.nextSibling) {
+                    columnElement.insertBefore(logEntry, header.nextSibling);
+                } else {
+                    columnElement.appendChild(logEntry);
+                }
+                var entries = columnElement.querySelectorAll('.status-log-entry');
+                if (entries.length > 10) {
+                    entries[entries.length - 1].remove();
+                }
+            }
+        }
+
+        // ==========================================
+        // TIMER FUNCTIONS
+        // ==========================================
+        function startTimer() {
+            if (!timerRunning) {
+                timerRunning = true;
+                var startBtn = document.getElementById('startBtn');
+                var stopBtn = document.getElementById('stopBtn');
+                if (startBtn) startBtn.disabled = true;
+                if (stopBtn) stopBtn.disabled = false;
+                addStatusLog('Timer started', 'other');
+                timerInterval = setInterval(function() {
+                    timerSeconds++;
+                    updateTimerDisplay();
+                }, 1000);
+            }
+        }
+
+        function stopTimer() {
+            if (timerRunning) {
+                timerRunning = false;
+                clearInterval(timerInterval);
+                var startBtn = document.getElementById('startBtn');
+                var stopBtn = document.getElementById('stopBtn');
+                if (startBtn) startBtn.disabled = false;
+                if (stopBtn) stopBtn.disabled = true;
+                addStatusLog('Timer stopped: ' + formatTime(timerSeconds), 'other');
+            }
+        }
+
+        function resetTimer() {
+            stopTimer();
+            timerSeconds = 0;
+            updateTimerDisplay();
+            var startBtn = document.getElementById('startBtn');
+            var stopBtn = document.getElementById('stopBtn');
+            if (startBtn) startBtn.disabled = false;
+            if (stopBtn) stopBtn.disabled = true;
+            addStatusLog('Timer reset', 'other');
+        }
+
+        function updateTimerDisplay() {
+            var display = document.getElementById('timerDisplay');
+            if (display) {
+                display.textContent = formatTime(timerSeconds);
+            }
+        }
+
+        function formatTime(totalSeconds) {
+            var minutes = Math.floor(totalSeconds / 60);
+            var seconds = totalSeconds % 60;
+            return String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+        }
+
+        function setNow() {
+            var now = new Date();
+            var timeString = now.toTimeString().slice(0, 5);
+            var timeInput = document.getElementById('time');
+            if (timeInput) {
+                timeInput.value = timeString;
+                addStatusLog('Time set to ' + timeString, 'other');
+            }
+        }
+
+        // ==========================================
+        // STAR RATING FUNCTIONS
+        // ==========================================
+        function initializeStatesOfMindRatings() {
+            document.querySelectorAll('.states-of-mind-container .star-rating').forEach(function(ratingContainer) {
+                var state = ratingContainer.dataset.state;
+                var stars = ratingContainer.querySelectorAll('.star');
+                stars.forEach(function(star) {
+                    star.addEventListener('click', function() {
+                        var value = parseInt(this.dataset.value);
+                        statesOfMindRatings[state] = value;
+                        stars.forEach(function(s, index) {
+                            if (index < value) {
+                                s.textContent = '\u2605';
+                                s.classList.add('active');
+                            } else {
+                                s.textContent = '\u2606';
+                                s.classList.remove('active');
+                            }
+                        });
+                        addStatusLog(state + ': ' + value + ' stars', 'other');
+                    });
+                });
+            });
+        }
+
+        // ==========================================
+        // EFFECT SIZE RATING FUNCTIONS
+        // ==========================================
+        function initializeEffectSizeRatings() {
+            document.querySelectorAll('.effect-star-rating').forEach(function(ratingContainer) {
+                var category = ratingContainer.dataset.category;
+                var field = ratingContainer.dataset.field;
+                var stars = ratingContainer.querySelectorAll('.effect-star');
+                if (!effectSizeRatings[category]) {
+                    effectSizeRatings[category] = {};
+                }
+                stars.forEach(function(star) {
+                    star.addEventListener('click', function() {
+                        var value = parseInt(this.dataset.value);
+                        effectSizeRatings[category][field] = value;
+                        stars.forEach(function(s, index) {
+                            if (index < value) {
+                                s.textContent = '\u2605';
+                                s.classList.add('active');
+                            } else {
+                                s.textContent = '\u2606';
+                                s.classList.remove('active');
+                            }
+                        });
+                        addStatusLog(category + '/' + field + ': ' + value, 'other');
+                        updatePostFromEffectSize(category);
+                    });
+                });
+            });
+        }
+
+        function updatePostFromEffectSize(category) {
+            var categoryRatings = effectSizeRatings[category];
+            if (!categoryRatings) return;
+            var total = 0;
+            var count = 0;
+            for (var field in categoryRatings) {
+                if (categoryRatings[field] > 0) {
+                    total += categoryRatings[field];
+                    count++;
+                }
+            }
+            if (count > 0) {
+                var average = (total / count).toFixed(1);
+                var postInput = document.getElementById('post');
+                if (postInput) {
+                    postInput.value = average;
+                    addStatusLog('POST avg: ' + average + ' (' + count + ' items)', 'other');
+                }
+            }
+        }
+
+        // ==========================================
+        // FORMATTING TOOLBAR
+        // ==========================================
+        function formatText(command) {
+            document.execCommand(command, false, null);
+        }
+
+        // ==========================================
+        // HANDLER FUNCTIONS FOR FIELD CHANGES
+        // ==========================================
+        
+        // Fixed: Consolidated handler for name field change
+        function handleNameChange() {
+            if (isLoadingData) return; // Prevent multiple loads
+            isLoadingData = true;
+            
+            var name = document.getElementById('name').value;
+            if (!name) {
+                isLoadingData = false;
+                return;
+            }
+            
+            // Load data sequentially to avoid race conditions
+            loadPreviousAppointmentNotes(function() {
+                loadPreviousPostScore(function() {
+                    loadCurrentActionPlan(function() {
+                        loadFutureAppointments(function() {
+                            isLoadingData = false;
+                        });
+                    });
+                });
+            });
+        }
+        
+        // Fixed: Handler for task field change
+        function handleTaskChange() {
+            if (isLoadingData) return;
+            
+            loadPreviousAppointmentNotes();
+            loadPreviousPostScore();
+        }
+
+        // ==========================================
+        // LOAD PREVIOUS APPOINTMENT NOTES
+        // ==========================================
+        function loadPreviousAppointmentNotes(callback) {
+            var teacherName = document.getElementById('name').value;
+            var taskType = document.getElementById('task').value;
+            if (!teacherName) {
+                addStatusLog('Select a name first', 'other');
+                if (callback) callback();
+                return;
+            }
+            if (!isAppsScript) {
+                addStatusLog('Standalone mode', 'loading');
+                if (callback) callback();
+                return;
+            }
+            addStatusLog('Loading notes...', 'loading');
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result.success) {
+                        document.getElementById('previousNotes').innerHTML = result.html;
+                        addStatusLog('Notes loaded', 'loading');
+                    } else {
+                        document.getElementById('previousNotes').innerHTML = '<i style="color: #999;">' + result.message + '</i>';
+                        addStatusLog(result.message, 'loading');
+                    }
+                    if (callback) callback();
+                })
+                .withFailureHandler(function(error) {
+                    addStatusLog('Error: ' + error, 'loading');
+                    if (callback) callback();
+                })
+                .getTeacherDataWithObservations(teacherName, taskType);
+        }
+
+        // ==========================================
+        // LOAD PREVIOUS POST SCORE
+        // ==========================================
+        function loadPreviousPostScore(callback) {
+            var name = document.getElementById('name').value;
+            var taskType = document.getElementById('task').value;
+            var matchField = taskType;
+            if (!matchField || !isAppsScript) {
+                if (callback) callback();
+                return;
+            }
+            addStatusLog('Loading POST...', 'loading');
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result.success && result.score !== null) {
+                        document.getElementById('pre').value = result.score;
+                        addStatusLog('PRE set: ' + result.score, 'loading');
+                    }
+                    if (callback) callback();
+                })
+                .withFailureHandler(function(error) {
+                    addStatusLog('POST error: ' + error, 'loading');
+                    if (callback) callback();
+                })
+                .getPreviousPostScore(name, matchField);
+        }
+
+        // ==========================================
+        // LOAD CURRENT ACTION PLAN
+        // ==========================================
+        function loadCurrentActionPlan(callback) {
+            var teacherName = document.getElementById('name').value;
+            if (!teacherName || !isAppsScript) {
+                if (callback) callback();
+                return;
+            }
+            addStatusLog('Loading action plan...', 'loading');
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result.success) {
+                        var statusClass = (result.status || '').toLowerCase().replace(' ', '-');
+                        var html = '<div class="action-plan-item ' + statusClass + '">';
+                        html += '<b>' + (result.actionItems || 'No item') + '</b><br>';
+                        html += '<small>Due: ' + (result.dueDate || 'N/A') + ' | Status: ' + (result.status || 'N/A') + '</small><br>';
+                        html += (result.details || '');
+                        html += '</div>';
+                        document.getElementById('currentActionPlan').innerHTML = html;
+                        addStatusLog('Action plan loaded', 'loading');
+                    } else {
+                        document.getElementById('currentActionPlan').innerHTML = '<i style="color: #999;">' + result.message + '</i>';
+                    }
+                    if (callback) callback();
+                })
+                .withFailureHandler(function(error) {
+                    addStatusLog('Error: ' + error, 'loading');
+                    if (callback) callback();
+                })
+                .getCurrentActionPlan(teacherName);
+        }
+
+        // ==========================================
+        // LOAD FUTURE APPOINTMENTS FROM CALENDAR
+        // ==========================================
+        function loadFutureAppointments(callback) {
+            var searchName = document.getElementById('name').value;
+            if (!searchName) {
+                document.getElementById('futureAppointmentsContainer').innerHTML = '<div class="no-future-appointments">Select a name to view future appointments</div>';
+                if (callback) callback();
+                return;
+            }
+            if (!isAppsScript) {
+                addStatusLog('Standalone mode', 'loading');
+                if (callback) callback();
+                return;
+            }
+            addStatusLog('Loading calendar...', 'loading');
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    var container = document.getElementById('futureAppointmentsContainer');
+                    if (result.success && result.appointments && result.appointments.length > 0) {
+                        var html = '';
+                        for (var i = 0; i < result.appointments.length; i++) {
+                            var appt = result.appointments[i];
+                            html += '<div class="future-appointment-item">';
+                            html += '<b>' + appt.date + '</b><br>';
+                            html += '<small>' + appt.time + '</small><br>';
+                            html += '<span style="color: #aaa;">' + appt.title + '</span>';
+                            html += '</div>';
+                        }
+                        if (result.totalFound > 5) {
+                            html += '<div style="color: #888; font-size: 9px; text-align: center;">+ ' + (result.totalFound - 5) + ' more</div>';
+                        }
+                        container.innerHTML = html;
+                        addStatusLog(result.appointments.length + ' appointments', 'loading');
+                    } else {
+                        container.innerHTML = '<div class="no-future-appointments">No upcoming appointments found</div>';
+                        addStatusLog('No appointments', 'loading');
+                    }
+                    if (callback) callback();
+                })
+                .withFailureHandler(function(error) {
+                    addStatusLog('Calendar error: ' + error, 'loading');
+                    if (callback) callback();
+                })
+                .getFutureAppointmentsFromCalendar(searchName);
+        }
+
+        // ==========================================
+        // LOAD CONVERSATION QUESTIONS
+        // ==========================================
+        function loadConversationQuestions() {
+            var strategy = document.getElementById('strategy').value;
+            if (!strategy) {
+                addStatusLog('Select a strategy first', 'other');
+                return;
+            }
+            if (!isAppsScript) {
+                addStatusLog('Standalone mode', 'loading');
+                return;
+            }
+            addStatusLog('Loading template...', 'loading');
+            var currentNotes = document.getElementById('notes').innerHTML;
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result.success) {
+                        document.getElementById('notes').innerHTML = result.html;
+                        if (result.agendaHtml) {
+                            document.getElementById('agenda').innerHTML = result.agendaHtml;
+                        }
+                        if (result.taskFieldHtml) {
+                            document.getElementById('taskField').innerHTML = result.taskFieldHtml;
+                        }
+                        addStatusLog('Template loaded', 'loading');
+                    } else {
+                        addStatusLog(result.message, 'loading');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    addStatusLog('Error: ' + error, 'loading');
+                })
+                .getConversationQuestions(strategy, currentNotes);
+        }
+
+        // ==========================================
+        // SAVE EFFECT SIZE
+        // ==========================================
+        function saveEffectSize() {
+            var pre = document.getElementById('pre').value;
+            var post = document.getElementById('post').value;
+            var name = document.getElementById('name').value;
+            var purpose = document.getElementById('task').value;
+            if (!pre || !post) {
+                addStatusLog('Enter PRE and POST', 'other');
+                return;
+            }
+            if (!isAppsScript) {
+                addStatusLog('Standalone mode', 'saving');
+                return;
+            }
+            addStatusLog('Saving effect size...', 'saving');
+            var effectSizeData = {
+                pre: pre,
+                post: post,
+                name: name,
+                purpose: purpose
+            };
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result.success) {
+                        addStatusLog('Effect size saved', 'saving');
+                        document.getElementById('pre').value = '';
+                        document.getElementById('post').value = '';
+                    } else {
+                        addStatusLog('Save failed', 'saving');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    addStatusLog('Error: ' + error, 'saving');
+                })
+                .saveEffectSize(effectSizeData);
+        }
+
+        // ==========================================
+        // SAVE ACTION PLAN
+        // ==========================================
+        function saveActionPlan() {
+            var name = document.getElementById('name').value;
+            var actionItems = document.getElementById('actionItems').value;
+            var dueDate = document.getElementById('dueDate').value;
+            var actionStatus = document.getElementById('actionStatus').value;
+            var actionDetails = document.getElementById('actionDetails').value;
+            if (!name) {
+                addStatusLog('Select a name first', 'other');
+                return;
+            }
+            if (!actionItems) {
+                addStatusLog('Select an action item', 'other');
+                return;
+            }
+            if (!isAppsScript) {
+                addStatusLog('Standalone mode', 'saving');
+                return;
+            }
+            addStatusLog('Saving action plan...', 'saving');
+            var actionPlanData = {
+                name: name,
+                actionItems: actionItems,
+                dueDate: dueDate,
+                actionStatus: actionStatus,
+                actionDetails: actionDetails
+            };
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result.success) {
+                        addStatusLog('Action plan saved', 'saving');
+                        document.getElementById('actionItems').value = '';
+                        document.getElementById('dueDate').value = '';
+                        document.getElementById('actionStatus').value = '';
+                        document.getElementById('actionDetails').value = '';
+                        loadCurrentActionPlan();
+                    } else {
+                        addStatusLog(result.message, 'saving');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    addStatusLog('Error: ' + error, 'saving');
+                })
+                .saveActionPlan(actionPlanData);
+        }
+
+        // ==========================================
+        // OPEN SCORING FORM
+        // ==========================================
+        function openScoringForm(category) {
+            if (scriptUrl) {
+                var url = scriptUrl + '?page=' + category;
+                window.open(url, '_blank', 'width=900,height=800');
+            }
+            addStatusLog('Opened ' + category, 'other');
+        }
+
+        // ==========================================
+        // OPEN OBSERVATION FORMS
+        // ==========================================
+        function openObsForm(type) {
+            var url = '';
+            if (type === 'teacher') {
+                url = 'https://script.google.com/a/macros/ssdmo.org/s/AKfycbzkYQETcJIWep4cmLLGV-R8-WH42AFOAfEI40yX1iAA093BlJ8t9G5PbuuoGsgndIEnTQ/exec';
+            } else if (type === 'student') {
+                url = 'https://script.google.com/a/macros/ssdmo.org/s/AKfycbz_pJckoK0uoYVTabVoLD1l4lGXYP_Dv82vwHrgglucj20g6zgzvbo3kpe8T2MlVNiO_g/exec';
+            } else if (type === 'kickup') {
+                url = 'https://pulse.kickup.co/';
+            }
+            if (url) {
+                window.open(url, '_blank');
+            }
+            addStatusLog('Opened ' + type, 'other');
+        }
+
+        // ==========================================
+        // COLLECT FORM DATA
+        // ==========================================
+        function collectFormData() {
+            var statesData = {};
+            for (var state in statesOfMindRatings) {
+                statesData[state] = statesOfMindRatings[state];
+            }
+
+            function getChecklistContent(elementId) {
+                var element = document.getElementById(elementId);
+                if (!element) return '';
+                var checkboxes = element.querySelectorAll('.checkbox-item');
+                var content = '';
+                checkboxes.forEach(function(item) {
+                    var checkbox = item.querySelector('input[type="checkbox"]');
+                    var label = item.querySelector('label');
+                    if (label && label.textContent.trim()) {
+                        var symbol = checkbox && checkbox.checked ? '\u2611' : '\u2610';
+                        content += symbol + ' ' + label.textContent.trim() + '\n';
+                    }
+                });
+                return content;
+            }
+
+            return {
+                row: currentRowNumber,
+                date: document.getElementById('date') ? document.getElementById('date').value : '',
+                time: document.getElementById('time') ? document.getElementById('time').value : '',
+                location: document.getElementById('location') ? document.getElementById('location').value : '',
+                owner: document.getElementById('owner') ? document.getElementById('owner').value : '',
+                name: document.getElementById('name') ? document.getElementById('name').value : '',
+                eventTitle: document.getElementById('eventTitle') ? document.getElementById('eventTitle').value : '',
+                task: document.getElementById('task') ? document.getElementById('task').value : '',
+                purpose: document.getElementById('purpose') ? document.getElementById('purpose').value : '',
+                taskField: getChecklistContent('taskField'),
+                status: document.getElementById('status') ? document.getElementById('status').value : '',
+                strategy: document.getElementById('strategy') ? document.getElementById('strategy').value : '',
+                notes: document.getElementById('notes') ? document.getElementById('notes').innerHTML : '',
+                minutes: timerSeconds / 60,
+                agenda: getChecklistContent('agenda'),
+                thoughts: getChecklistContent('thoughts'),
+                consciousness: statesData.consciousness || 0,
+                craftsmanship: statesData.craftsmanship || 0,
+                efficacy: statesData.efficacy || 0,
+                flexibility: statesData.flexibility || 0,
+                interdependence: statesData.interdependence || 0
+            };
+        }
+
+        // ==========================================
+        // SUBMIT FORM
+        // ==========================================
+        function submitForm() {
+            if (!currentRowNumber) {
+                addStatusLog('No row number', 'saving');
+                return;
+            }
+            if (!isAppsScript) {
+                addStatusLog('Standalone mode', 'saving');
+                return;
+            }
+            addStatusLog('Saving form...', 'saving');
+            var formData = collectFormData();
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result.success) {
+                        addStatusLog('Form saved!', 'saving');
+                    } else {
+                        addStatusLog('Save failed: ' + (result.message || ''), 'saving');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    addStatusLog('Error: ' + error, 'saving');
+                })
+                .saveRowData(formData);
+        }
+
+        // ==========================================
+        // LOAD ROW DATA
+        // ==========================================
+        function loadRowData() {
+            if (!currentRowNumber || currentRowNumber === 'null') {
+                addStatusLog('No row to load', 'loading');
+                return;
+            }
+            if (!isAppsScript) {
+                addStatusLog('Standalone mode', 'loading');
+                return;
+            }
+            addStatusLog('Loading row ' + currentRowNumber + '...', 'loading');
+            google.script.run
+                .withSuccessHandler(function(data) {
+                    if (data.error) {
+                        addStatusLog(data.error, 'loading');
+                        return;
+                    }
+                    
+                    // Populate form fields with null checks
+                    if (data.date && document.getElementById('date')) document.getElementById('date').value = data.date;
+                    if (data.time && document.getElementById('time')) document.getElementById('time').value = data.time;
+                    if (data.location && document.getElementById('location')) document.getElementById('location').value = data.location;
+                    if (data.owner && document.getElementById('owner')) document.getElementById('owner').value = data.owner;
+                    if (data.name && document.getElementById('name')) document.getElementById('name').value = data.name;
+                    if (data.eventTitle && document.getElementById('eventTitle')) document.getElementById('eventTitle').value = data.eventTitle;
+                    if (data.task && document.getElementById('task')) document.getElementById('task').value = data.task;
+                    if (data.purpose && document.getElementById('purpose')) document.getElementById('purpose').value = data.purpose;
+                    if (data.status && document.getElementById('status')) document.getElementById('status').value = data.status;
+                    if (data.strategy && document.getElementById('strategy')) document.getElementById('strategy').value = data.strategy;
+                    if (data.notes && document.getElementById('notes')) document.getElementById('notes').innerHTML = data.notes;
+                    
+                    // Set star ratings
+                    if (data.consciousness) setStarRating('consciousness', data.consciousness);
+                    if (data.craftsmanship) setStarRating('craftsmanship', data.craftsmanship);
+                    if (data.efficacy) setStarRating('efficacy', data.efficacy);
+                    if (data.flexibility) setStarRating('flexibility', data.flexibility);
+                    if (data.interdependence) setStarRating('interdependence', data.interdependence);
+                    
+                    // Set timer
+                    if (data.minutes && data.minutes > 0) {
+                        timerSeconds = Math.round(data.minutes * 60);
+                        updateTimerDisplay();
+                    }
+                    
+                    addStatusLog('Row loaded', 'loading');
+                    updateStatusColor();
+                    
+                    // Load related data if name is present
+                    if (data.name) {
+                        handleNameChange();
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    addStatusLog('Load error: ' + error, 'loading');
+                })
+                .getRowData(currentRowNumber);
+        }
+
+        // ==========================================
+        // SET STAR RATING HELPER
+        // ==========================================
+        function setStarRating(stateName, value) {
+            statesOfMindRatings[stateName] = value;
+            var container = document.querySelector('.star-rating[data-state="' + stateName + '"]');
+            if (container) {
+                var stars = container.querySelectorAll('.star');
+                stars.forEach(function(star, index) {
+                    if (index < value) {
+                        star.textContent = '\u2605';
+                        star.classList.add('active');
+                    } else {
+                        star.textContent = '\u2606';
+                        star.classList.remove('active');
+                    }
+                });
+            }
+        }
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date
+            var today = new Date().toISOString().split('T')[0];
+            var dateInput = document.getElementById('date');
+            if (dateInput) {
+                dateInput.value = today;
+            }
+            
+            // Initialize ratings
+            initializeStatesOfMindRatings();
+            initializeEffectSizeRatings();
+            
+            // Collapse all question categories
+            collapseAllCategories();
+            
+            addStatusLog('Form loaded', 'loading');
+            
+            // Load row data if row number exists
+            if (currentRowNumber && currentRowNumber !== 'null') {
+                loadRowData();
+            }
+            
+            updateStatusColor();
+            
+            // Complete checkbox handler
+            var completeCheckbox = document.getElementById('completeCheckbox');
+            if (completeCheckbox) {
+                completeCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        var statusSelect = document.getElementById('status');
+                        if (statusSelect) {
+                            statusSelect.value = 'Complete';
+                            updateStatusColor();
+                            addStatusLog('Status: Complete', 'other');
+                        }
+                    }
+                });
+            }
+            
+            // Form submit handler
+            var form = document.getElementById('appointmentForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    submitForm();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
